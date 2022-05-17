@@ -155,9 +155,9 @@ B_Mean = mean(BLight_Tiff);
 B_Std = std(BLight_Tiff);
 percentleak_B = (mean(BLight_Tiff)-mean(B_im))/mean(BLight_Tiff);
 
-fprintf('Leakege of green and blue light into red pixel is %d',percentleak_R);
-fprintf('Leakege of red and blue light into green pixel is %d',percentleak_G);
-fprintf('Leakege of red and green light into blue pixel is %d',percentleak_B);
+fprintf('Leakege of green and blue light into red pixel is %f\n',percentleak_R);
+fprintf('Leakege of red and blue light into green pixel is %f\n',percentleak_G);
+fprintf('Leakege of red and green light into blue pixel is %f\n',percentleak_B);
 
 % Ellipsometry:
 % https://www.jawoollam.com/resources/ellipsometry-tutorial/interaction-of-light-and-materials
