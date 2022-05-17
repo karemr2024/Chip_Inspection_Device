@@ -124,14 +124,22 @@ imshow(B_im)
 
 RGB_Combo_Unleaked = R_im + G_im + B_im;
 
-% I_inR = R_im./ RefMatR
-% I_inG = G_im./ RefMatG
-% I_inB = B_im./ RefMatB
-
 RGB_Combo_Unleaked_Demosaic = demosaic(RGB_Combo_Unleaked,'rggb');
 figure(8)
 imshow(RGB_Combo_Unleaked_Demosaic)
 imwrite(RGB_Combo_Unleaked_Demosaic,'RGB_Combo_Unleaked_Demosaic.tif')
+
+% Calculating thicknesses using reflectences from eren's code.
+
+% I_inR = R_im./ RefRed_at_0nmO2;
+% I_inG = G_im./ RefGre_at_0nmO2;
+% I_inB = B_im./ RefBlu_at_0nmO2;
+% 
+% RefRed_at_XnmO2 = R_Chan/I_inR;
+% RefGre_at_XnmO2 = G_Chan/I_inG;
+% RefBlu_at_XnmO2 = B_Chan/I_inB;
+
+% Ref_Fitter = [RefRed_at_XnmO2 RefGre_at_XnmO2 RefBlu_at_XnmO2];
 
 % Leaktest Stats:
 
