@@ -145,19 +145,19 @@ imwrite(RGB_Combo_Unleaked_Demosaic,'RGB_Combo_Unleaked_Demosaic.tif')
 
 R_Mean = mean(RLight_Tiff);
 R_Std = std(RLight_Tiff);
-percentleak_R = (mean(RLight_Tiff)-mean(R_im))/mean(RLight_Tiff);
+percentleak_R = 100*((mean(RLight_Tiff)-mean(R_im))/mean(RLight_Tiff));
 
 G_Mean = mean(GLight_Tiff);
 G_Std = std(GLight_Tiff);
-percentleak_G = (mean(GLight_Tiff)-mean(G_im))/mean(GLight_Tiff);
+percentleak_G = 100*((mean(GLight_Tiff)-mean(G_im))/mean(GLight_Tiff));
 
 B_Mean = mean(BLight_Tiff);
 B_Std = std(BLight_Tiff);
-percentleak_B = (mean(BLight_Tiff)-mean(B_im))/mean(BLight_Tiff);
+percentleak_B = 100*((mean(BLight_Tiff)-mean(B_im))/mean(BLight_Tiff));
 
-fprintf('Leakege of green and blue light into red pixel is %d',percentleak_R);
-fprintf('Leakege of red and blue light into green pixel is %d',percentleak_G);
-fprintf('Leakege of red and green light into blue pixel is %d',percentleak_B);
+fprintf('Leakege of green and blue light into red pixel is %f percent \n',percentleak_R);
+fprintf('Leakege of red and blue light into green pixel is %f percent \n',percentleak_G);
+fprintf('Leakege of red and green light into blue pixel is %f percent \n',percentleak_B);
 
 % Ellipsometry:
 % https://www.jawoollam.com/resources/ellipsometry-tutorial/interaction-of-light-and-materials
