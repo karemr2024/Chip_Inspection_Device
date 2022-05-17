@@ -1,10 +1,29 @@
 clc; clear all; clearvars;
 
 % Import images as RGB channels
-R_Tiff = imread("Enter R Image Name");
-G_Tiff = imread("Enter G Image Name");
-B_Tiff = imread("Enter B Image Name");
-% Create RGB pixel masks
+[R_Tiff_Name,R_Tiff_Path] = uigetfile('*.tif','Red Image');
+if isequal(R_Tiff_Name,0)
+   disp('User selected Cancel');
+else
+   disp(['User selected ', fullfile(R_Tiff_Name,R_Tiff_Path)]);
+   R_Tiff = imread(strcat(R_Tiff_Path, R_Tiff_Name));
+end
+[G_Tiff_Name,G_Tiff_Path] = uigetfile('*.tif','Green Image');
+if isequal(G_Tiff_Name,0)
+   disp('User selected Cancel');
+else
+   disp(['User selected ', fullfile(G_Tiff_Name,G_Tiff_Path)]);
+   G_Tiff = imread(strcat(G_Tiff_Path, G_Tiff_Name));
+end
+[B_Tiff_Name,B_Tiff_Path] = uigetfile('*.tif','Blue Image');
+if isequal(B_Tiff_Name,0)
+   disp('User selected Cancel');
+else
+   disp(['User selected ', fullfile(B_Tiff_Name,B_Tiff_Path)]);
+   B_Tiff = imread(strcat(B_Tiff_Path, B_Tiff_Name));
+end
+% Create RGB pixel masks according to camera sensor superpixel filter
+% configuration 'rggb' and resolution 1080x1440.
 R_Repeater = [1 0 ; 0 0];
 G_Repeater = [0 1 ; 1 0];
 B_Repeater = [0 0 ; 0 1];
@@ -26,10 +45,34 @@ imwrite(Demo_Img,'RGB_Combo_Demo.tif')
 
 % Pixel leakage test:
 % Import images of uniform mirror surface under different lighting conditions
-DARK_Tiff = imread("Insert Dark Leak Test Image");
-RLight_Tiff = imread("Insert Leak R Test Image");
-GLight_Tiff = imread("Insert Leak G Test Image");
-BLight_Tiff = imread("Insert Leak B Test Image");
+[DARK_Tiff_Name,DARK_Tiff_Path] = uigetfile('*.tif','Dark Image');
+if isequal(DARK_Tiff_Name,0)
+   disp('User selected Cancel');
+else
+   disp(['User selected ', fullfile(DARK_Tiff_Name,DARK_Tiff_Path)]);
+   DARK_Tiff = imread(strcat(DARK_Tiff_Path, DARK_Tiff_Name));
+end
+[RLight_Tiff_Name,RLight_Tiff_Path] = uigetfile('*.tif','Red Leak-Test Image');
+if isequal(RLight_Tiff_Name,0)
+   disp('User selected Cancel');
+else
+   disp(['User selected ', fullfile(RLight_Tiff_Name,RLight_Tiff_Path)]);
+   RLight_Tiff = imread(strcat(RLight_Tiff_Path, RLight_Tiff_Name));
+end
+[GLight_Tiff_Name,GLight_Tiff_Path] = uigetfile('*.tif','Green Leak-Test Image');
+if isequal(GLight_Tiff_Name,0)
+   disp('User selected Cancel');
+else
+   disp(['User selected ', fullfile(GLight_Tiff_Name,GLight_Tiff_Path)]);
+   GLight_Tiff = imread(strcat(GLight_Tiff_Path, GLight_Tiff_Name));
+end
+[BLight_Tiff_Name,BLight_Tiff_Path] = uigetfile('*.tif','Blue Leak-Test Image');
+if isequal(BLight_Tiff_Name,0)
+   disp('User selected Cancel');
+else
+   disp(['User selected ', fullfile(BLight_Tiff_Name,BLight_Tiff_Path)]);
+   BLight_Tiff = imread(strcat(BLight_Tiff_Path, BLight_Tiff_Name));
+end
 
 % Lighting uniformity:
 RLight_dem = demosaic(RLight_Tiff,'rggb');
