@@ -1,4 +1,4 @@
-clc; clear all; clearvars;
+clc; clear; clearvars;
 
 % Import images as RGB channels by prompting the user
 [R_Tiff_Name,R_Tiff_Path] = uigetfile('*.tif','Red Image');
@@ -102,62 +102,80 @@ GLeak_for_RLight = (RLight_Tiff- DARK_Tiff).*G_Mask;
 % Leakage of green light into blue bayer pixels
 BLeak_for_GLight = (GLight_Tiff - DARK_Tiff).*B_Mask;
 % Leakage of green light into red bayer pixels
-RLeak_for_GLight = (GLight_Tiff- DARK_Tiff).*R_Mask;
+RLeak_for_GLight = (GLight_Tiff - DARK_Tiff).*R_Mask;
 % Leakage of blue light into green bayer pixels
 GLeak_for_BLight = (BLight_Tiff - DARK_Tiff).*G_Mask;
 % Leakage of blue light into red bayer pixels
 RLeak_for_BLight = (BLight_Tiff - DARK_Tiff).*R_Mask;
-
-R_im = RLight_Tiff - RLeak_for_BLight -RLeak_for_GLight;
+%%
+R_im = RLight_Tiff - (RLeak_for_BLight + RLeak_for_GLight);
 figure(5)
 imshow(R_im)
 
-G_im = GLight_Tiff - GLeak_for_RLight -GLeak_for_BLight;
+G_im = GLight_Tiff - (GLeak_for_RLight + GLeak_for_BLight);
 figure(6)
 imshow(G_im)
 
-B_im = BLight_Tiff - BLeak_for_RLight -BLeak_for_GLight;
+B_im = BLight_Tiff - (BLeak_for_RLight + BLeak_for_GLight);
 figure(7)
 imshow(B_im)
-
+%%
 % Combination after leakage correction
 
-RGB_Combo_Unleaked = R_im + G_im + B_im;
+RGB_Combo_Unleaked = (R_im.*R_Mask) + (G_im.*G_Mask) + (B_im.*B_Mask);
 
 RGB_Combo_Unleaked_Demosaic = demosaic(RGB_Combo_Unleaked,'rggb');
 figure(8)
 imshow(RGB_Combo_Unleaked_Demosaic)
 imwrite(RGB_Combo_Unleaked_Demosaic,'RGB_Combo_Unleaked_Demosaic.tif')
 
-% Calculating thicknesses using reflectences from eren's code.
+% Calculating thicknesses using reflectences from eren's code. 
+% This part of the code has two major problems:
+% 1. The way RefRed_at_XnmO2 (reflectance at 'unknown' SiO2 thickness) is
+% calculated is prone to errors when G_im (image under green light,
+% adjusted for leakage of other light at dark) has very small values
+% compared to G_Chan (green channel of image of 'unknown' SiO2 thickness
+% under green light).
+% 2. The way mean reflectance values are calculated does not account for zero values that may
+% occur in the pixels of interest.
+%%
+I_inR = (R_im.*R_Mask)./ 34.64;
+I_inG = (G_im.*G_Mask)./ 36.90;
+I_inB = (B_im.*B_Mask)./ 39.98;
+%% 
+RefRed_at_XnmO2 = R_Chan./I_inR;
+RefGre_at_XnmO2 = G_Chan./I_inG;
+RefBlu_at_XnmO2 = B_Chan./I_inB;
+%%
+MeanRefRed_at_XnmO2 = mean(mean(nonzeros(RefRed_at_XnmO2)));
+MeanRefGre_at_XnmO2 = mean(mean(nonzeros(RefGre_at_XnmO2)));
+MeanRefBlu_at_XnmO2 = mean(mean(nonzeros(RefBlu_at_XnmO2)));
 
-% I_inR = R_im./ RefRed_at_0nmO2;
-% I_inG = G_im./ RefGre_at_0nmO2;
-% I_inB = B_im./ RefBlu_at_0nmO2;
-% 
-% RefRed_at_XnmO2 = R_Chan/I_inR;
-% RefGre_at_XnmO2 = G_Chan/I_inG;
-% RefBlu_at_XnmO2 = B_Chan/I_inB;
-
-% Ref_Fitter = [RefRed_at_XnmO2 RefGre_at_XnmO2 RefBlu_at_XnmO2];
+Ref_Fitter = [MeanRefRed_at_XnmO2 MeanRefGre_at_XnmO2 MeanRefBlu_at_XnmO2];
 
 % Leaktest Stats:
+% Means of each nonzero pixel are taken for image taken under X colour (XLight_Tiff),
+% means of X_im (image under X coloured light, adjusted for leakage of the other two colours of light at dark)
+% are taken. For each colour:
+% [(mean of non zero indeces of XLight_Tiff)-(mean of non zero indeces of X_im)]/(mean of non zero indeces of XLight_Tiff)
+% is used to calculate leakage. This value is multiplied by 100 to get a
+% percentage. 
 
-R_Mean = mean(RLight_Tiff);
-R_Std = std(RLight_Tiff);
-percentleak_R = 100*((mean(RLight_Tiff)-mean(R_im))/mean(RLight_Tiff));
+R_Mean = mean(RLight_Tiff,2);
+%R_Std = std(RLight_Tiff);
+percentleak_R = 100*((mean(mean(nonzeros(RLight_Tiff)))-mean(mean(nonzeros(R_im))))/mean(mean(nonzeros(RLight_Tiff))));
 
 G_Mean = mean(GLight_Tiff);
-G_Std = std(GLight_Tiff);
-percentleak_G = 100*((mean(GLight_Tiff)-mean(G_im))/mean(GLight_Tiff));
+%G_Std = std(GLight_Tiff);
+percentleak_G = 100*((mean(mean(nonzeros(GLight_Tiff)))-mean(mean(nonzeros(G_im))))/mean(mean(nonzeros(GLight_Tiff))));
 
 B_Mean = mean(BLight_Tiff);
-B_Std = std(BLight_Tiff);
-percentleak_B = 100*((mean(BLight_Tiff)-mean(B_im))/mean(BLight_Tiff));
+%B_Std = std(BLight_Tiff);
+percentleak_B = 100*((mean(mean(nonzeros(BLight_Tiff)))-mean(mean(nonzeros(B_im))))/mean(mean(nonzeros(BLight_Tiff))));
 
-fprintf('Leakege of green and blue light into red pixel is %f percent \n',percentleak_R);
-fprintf('Leakege of red and blue light into green pixel is %f percent \n',percentleak_G);
-fprintf('Leakege of red and green light into blue pixel is %f percent \n',percentleak_B);
+fprintf('Leakege of green and blue light into red pixel is %f percent. \n',percentleak_R);
+fprintf('Leakege of red and blue light into green pixel is %f percent. \n',percentleak_G);
+fprintf('Leakege of red and green light into blue pixel is %f percent. \n',percentleak_B);
 
 % Ellipsometry:
 % https://www.jawoollam.com/resources/ellipsometry-tutorial/interaction-of-light-and-materials
