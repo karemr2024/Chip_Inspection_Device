@@ -33,7 +33,7 @@ G_Mask = uint16(repmat(G_Repeater,540,720));
 B_Mask = uint16(repmat(B_Repeater,540,720));
 % Multiply and add The original image under red light and the red mask 
 % so that the R_Chan matrix represents only the light that
-% red pixels of the sensor receive. Repeat for green and blue
+% red pixels of the sensor receive. Repeat for green and blue.
 R_Chan = R_Tiff.*R_Mask;
 G_Chan = G_Tiff.*G_Mask;
 B_Chan = B_Tiff.*B_Mask;
@@ -139,13 +139,17 @@ imwrite(RGB_Combo_Unleaked_Demosaic,'RGB_Combo_Unleaked_Demosaic.tif')
 % 2. The way mean reflectance values are calculated does not account for zero values that may
 % occur in the pixels of interest.
 %%
-I_inR = (R_im.*R_Mask)./ 34.64;
-I_inG = (G_im.*G_Mask)./ 36.90;
-I_inB = (B_im.*B_Mask)./ 39.98;
+I_inR = (256*((R_im.*R_Mask)./max(R_im.*R_Mask)))./ 34.64;
+I_inG = (256*((G_im.*G_Mask)./max(G_im.*G_Mask)))./ 36.90;
+I_inB = (256*((B_im.*G_Mask)./max(B_im.*G_Mask)))./ 39.98;
+% Normalise intensity (Added on 18 MAY 2022)
+I_inR = 256*(I_inR./max(I_inR));
+I_inG = 256*(I_inG./max(I_inG));
+I_inB = 256*(I_inB./max(I_inB));
 %% 
-RefRed_at_XnmO2 = R_Chan./I_inR;
-RefGre_at_XnmO2 = G_Chan./I_inG;
-RefBlu_at_XnmO2 = B_Chan./I_inB;
+RefRed_at_XnmO2 = (256*(R_Chan./max(R_Chan)))./I_inR;
+RefGre_at_XnmO2 = (256*(G_Chan./max(G_Chan)))./I_inG;
+RefBlu_at_XnmO2 = (256*(B_Chan./max(B_Chan)))./I_inB;
 %%
 MeanRefRed_at_XnmO2 = mean(mean(nonzeros(RefRed_at_XnmO2)));
 MeanRefGre_at_XnmO2 = mean(mean(nonzeros(RefGre_at_XnmO2)));
