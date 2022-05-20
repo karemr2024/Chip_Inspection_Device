@@ -139,9 +139,9 @@ imwrite(RGB_Combo_Unleaked_Demosaic,'RGB_Combo_Unleaked_Demosaic.tif')
 % 2. The way mean reflectance values are calculated does not account for zero values that may
 % occur in the pixels of interest.
 %%
-I_inR = (256*((R_im.*R_Mask)./max(R_im.*R_Mask)))./ 34.64;
-I_inG = (256*((G_im.*G_Mask)./max(G_im.*G_Mask)))./ 36.90;
-I_inB = (256*((B_im.*G_Mask)./max(B_im.*G_Mask)))./ 39.98;
+I_inR = (256*((R_im.*R_Mask)./max(R_im.*R_Mask)))./ 40.28;
+I_inG = (256*((G_im.*G_Mask)./max(G_im.*G_Mask)))./ 37.20;
+I_inB = (256*((B_im.*G_Mask)./max(B_im.*G_Mask)))./ 34.48;
 % Normalise intensity (Added on 18 MAY 2022)
 I_inR = 256*(I_inR./max(I_inR));
 I_inG = 256*(I_inG./max(I_inG));
