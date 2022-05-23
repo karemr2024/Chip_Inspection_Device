@@ -11,11 +11,11 @@ theta = 0; %incidence angle from left medium (in degrees)
 
 %Below are B and C constants for Si and SiO2 to use in Sellmeier equation.
 
-B_Si = [10.6684293, 0.0030434748, 1.54133408]; %B Constants for Si [B1, B2, B3]
-B_SiO = [0.6961663, 0.4079426, 0.8974794]; %B Constants for SiO2 [B1, B2, B3]
+B_Si = [10.6684293 0.0030434748 1.54133408]; %B Constants for Si [B1, B2, B3]
+B_SiO = [0.6961663 0.4079426 0.8974794]; %B Constants for SiO2 [B1, B2, B3]
 
-C_Si = [0.301516485, 1.13475115, 1104]; %C Constants for Si [C1, C2, C3]
-C_SiO = [0.0684043, 0.1162414, 9.896161]; %C Constants for SiO2 [C1, C2, C3]
+C_Si = [0.301516485 1.13475115 1104]; %C Constants for Si [C1, C2, C3]
+C_SiO = [0.0684043 0.1162414 9.896161]; %C Constants for SiO2 [C1, C2, C3]
 
 nsqrSi =sellmeier(B_Si,C_Si,lambda); %Find refractive index values for Si at each wavelength
 nsqrSiO =sellmeier(B_SiO,C_SiO,lambda); %Find refractive index values for SiO2 at each wavelength
@@ -41,16 +41,20 @@ Gamma = conj(Gamma1).*Gamma1; %Multiply Gamma with conjugate to get rid of imagi
 surgraph = surf(MLam,MThicc,Gamma,'EdgeColor','none');
 title('Si/SiO2 Reflectance')
 xlim([0.4 0.68])
+xticks([0.4 0.44 0.48 0.52 0.56 0.60 0.64 0.68])
+xticklabels([0 0.02 0.04 0.06 0.08 0.10 0.12 0.14])
 ylim([0 0.14])
+yticks([0 0.02 0.04 0.06 0.08 0.10 0.12 0.14])
+yticklabels([0.4 0.44 0.48 0.52 0.56 0.60 0.64 0.68])
 cb = colorbar;
 
 cb.Location = 'eastoutside';
-xlabel('Lambda (\mum)');
-ylabel('L (\mum)');
+xlabel('L (\mum)');
+ylabel('Lambda (\mum)');
 zlabel('Reflectance (%)');
 caxis([0 0.5]);
 
-% PROOF
+% COMPARISON
 % Reflectivity from Gamma matrix at wavelengths 449 nm and 521 nm & thicknesses 72 nm, 77 nm, and 
 % 82 nm are compared to figures 3 & 4 in https://www.researchgate.net/figure/Surface-reflectivity-versus-silicon-dioxide-layer-thickness_fig3_230952570
 
@@ -80,13 +84,13 @@ plot(lambda,Gamma(:,L_82nm),'b','LineWidth',2)
 xlabel('Wavelength \mum)')
 ylabel('Reflectance (%)')
 title('Wavelength vs Reflectance for different thicknesses')
-legend('72 nm', '77 nm', '82 nm')
+legend('L = 72 nm', 'L = 77 nm', 'L = 82 nm')
 
 % Gamma matrix is proven. Gamma curves at lambda values 449, 521 nm AND L values 72,77,82 nm are 
 % very similar to the curves seen in source graphs.
 
 %Now goal is to find reflectivity curves for red, green and blue. Center
-%wavelength values are taken from the center wavelength values of 
+%wavelength values are taken from the center wavelength values of camera
 
 figure(4)
 
@@ -100,8 +104,6 @@ xlabel('L (\mum)','FontSize',16);
 ylabel('Reflectivity (%)','FontSize',16');
 xlim([0 0.14])
 hold off
-
-%we have to find intensity_in from here - figure out tomorrow
 
 %Spectrum Data for red, green and blue LEDs are shown in Figure 5.
 
@@ -124,44 +126,140 @@ plot(lambda,greenspectrum,'g','LineWidth',2)
 plot(lambda,redspectrum,'r','LineWidth',2)
 title('LED Light Intensities')
 xlabel('Wavelength (nm)')
-ylabel('Reflectivity')
+ylabel('Intensity')
 hold off
 
-%Multiply LED spectrum with reflectivity curves to find to actual spectrum data 
+%Multiply LED spectrum with reflectivity curves to find reflected Intensity
 for i = 1:1370
-real_redspectrum = Gamma(i,:)'.*redspectrum; 
-real_greenspectrum = Gamma(i,:)'.*greenspectrum; 
-real_bluespectrum = Gamma(i,:)'.*bluespectrum; 
+Ref_spec_red = Gamma(i,valtoindex_L(0))'.*redspectrum; %Reflectivity spectrum for red at 0 nm (R_r) 
+Ref_spec_green = Gamma(i,valtoindex_L(0))'.*greenspectrum; %Reflectivity spectrum for green at 0 nm (R_g) 
+Ref_spec_blue = Gamma(i,valtoindex_L(0))'.*bluespectrum; %Reflectivity spectrum for blue at 0 nm (R_b)
 end 
 
-real_redspectrum = Gamma(valtoindex_L(0),:)'.*redspectrum; %More accurate spectrum data for R LED
-real_greenspectrum = Gamma(valtoindex_L(0),:)'.*greenspectrum; %More accurate spectrum data for G LED
-real_bluespectrum = Gamma(valtoindex_L(0),:)'.*bluespectrum; %More accurate spectrum data for B LED
+reflectivity_curve_0nm = Gamma(:,valtoindex_L(0)); %Reflectivity curve at 0 nm (used above)
 
-%Show RGB reflectivity curves for Si chip with no oxide (SiO2 thickness = 0 nm)
+%Plot RGB reflectivity curves for Si chip with no oxide (SiO2 thickness = 0 nm)
 
 figure(6)
 hold on
-plot(lambda,Gamma(valtoindex_L(0),:),'k-','LineWidth',2)
-plot(lambda,redspectrum,'r','Linewidth',2)
-plot(lambda,greenspectrum,'g','Linewidth',2)
-plot(lambda,bluespectrum,'b','Linewidth',2)
-plot(lambda,real_redspectrum,'r','Linewidth',2)
-plot(lambda,real_greenspectrum,'g','Linewidth',2)
-plot(lambda,real_bluespectrum,'b','Linewidth',2)
+plot(lambda,reflectivity_curve_0nm,'k-','LineWidth',2) %Reflectivity curve at 0 nm 
+plot(lambda,redspectrum,'r','Linewidth',2) %Red spectrum before multiplication
+plot(lambda,greenspectrum,'g','Linewidth',2) %Green spectrum before multiplication
+plot(lambda,bluespectrum,'b','Linewidth',2) %Blue spectrum before multiplication
+plot(lambda,Ref_spec_red,'r','Linewidth',2) %Red spectrum after multiplication
+plot(lambda,Ref_spec_green,'g','Linewidth',2) %Green spectrum after multiplication
+plot(lambda,Ref_spec_blue,'b','Linewidth',2) %Blue spectrum after multiplication
 xlabel('Wavelength (nm)')
 ylabel('Reflectivity')
-title('RGB Reflectivity Curves for Silicon (no oxide)')
-legend('Reflectivity Curve','Red Spectrum','Green Spectrum','Blue Spectrum','location','north')
+title('Reflectivity Curve for Silicon at 0 nm (no oxide)')
+legend('Reflectivity Curve for Silicon at 0 nm','Red Spectrum','Green Spectrum','Blue Spectrum','location','north')
+
+%Find FWHM of new multiplied images
+halfMaxb = (min(Ref_spec_blue) + max(Ref_spec_blue)) / 2;
+index1b = find(Ref_spec_blue >= halfMaxb, 1, 'first');
+index2b = find(Ref_spec_blue >= halfMaxb, 1, 'last');
+fwhmb = index2b-index1b + 1;
+fwhmxb = lambda(index2b) - lambda(index1b);
+
+halfMaxg = (min(Ref_spec_green) + max(Ref_spec_green)) / 2;
+index1g = find(Ref_spec_green >= halfMaxg, 1, 'first');
+index2g = find(Ref_spec_green >= halfMaxg, 1, 'last');
+fwhmg = index2g-index1g + 1;
+fwhmxg = lambda(index2g) - lambda(index1g);
+
+halfMaxr = (min(Ref_spec_red) + max(Ref_spec_red)) / 2;
+index1r = find(Ref_spec_red >= halfMaxr, 1, 'first');
+index2r = find(Ref_spec_red >= halfMaxr, 1, 'last');
+fwhmr = index2r-index1r + 1;
+fwhmxr = lambda(index2r) - lambda(index1r);
+
+%Find center wavelength of I_Out
+cw_b = (lambda(index2b)+lambda(index1b))/2
+cw_g = (lambda(index2g)+lambda(index1g))/2
+cw_r = (lambda(index2r)+lambda(index1r))/2
+
+%Find reflectance values at center wavelength
+Ref_at_blue = reflectivity_curve_0nm(valtoindex_lambda(cw_b)); %Reflectivity at blue (455 nm)
+Ref_at_green = reflectivity_curve_0nm(valtoindex_lambda(cw_g)); %Reflectivity at green (521.2 nm)
+Ref_at_red = reflectivity_curve_0nm(valtoindex_lambda(cw_r)); %Reflectivity at red (634.2 nm)
+
+
+
+% %Find intersection points of reflectivity curve and RGB spectrum
+% 
+% intsct_b1 = find(bluespectrum >= reflectivity_curve_0nm, 1, 'first');
+% intsct_b2 = find(bluespectrum >= reflectivity_curve_0nm, 1, 'last');
+% intsct_g1 = find(greenspectrum >= reflectivity_curve_0nm, 1, 'first')
+% intsct_g2 = find(greenspectrum >= reflectivity_curve_0nm, 1, 'last')
+% intsct_r1 = find(redspectrum >= reflectivity_curve_0nm, 1, 'first')
+% intsct_r2 = find(redspectrum >= reflectivity_curve_0nm, 1, 'last')
 
 figure(7)
 
+I_refred = []; %Reflected Intensity for red
+I_refgreen = []; %Reflected Intensity for green
+I_refblue = []; %Reflected Intensity for blue
 
+for i=1:1370
+    I_refred(:,i) = sum(Gamma(:,i).*Ref_spec_red);          %Multiply reflectance with I_Out for every thickness and sum to find total reflected intensity
+    I_refgreen(:,i) = sum(Gamma(:,i).*Ref_spec_green);      %Multiply reflectance with I_Out for every thickness and sum to find total reflected intensity
+    I_refblue(:,i) = sum(Gamma(:,i).*Ref_spec_blue);        %Multiply reflectance with I_Out for every thickness and sum to find total reflected intensity
+end 
 
+hold on
+plot(L,I_refblue/100,'b','LineWidth',2)
+plot(L,I_refgreen/100,'g','LineWidth',2)
+plot(L,I_refred/100,'r','LineWidth',2)
+title('Reflected Intensity (I_O_u_t) for RGB from 0 nm to 140 nm')
+legend('Blue','Green','Red')
+xlabel('L (\mum)','FontSize',16);
+ylabel('Reflected Intensity (I_O_u_t)','FontSize',16);
+hold off
 
+figure(10) %Simulated color for 0-140 nm
+I_tot = cat(3, I_refred, I_refgreen, I_refblue)
+I_totnorm = (I_tot./max(I_tot)).*255;
 
+for i = 1:6
+    I_totnorm = [I_totnorm; I_totnorm];
+end
 
+imtot = uint8(round(I_totnorm));
+imagesc(imtot)
+set(gca,'YDir','normal')
+ylim([1,30])
+title('Simulated Color')
+xlabel('Thickness')
+xticks([valtoindex_L(0) valtoindex_L(0.02) valtoindex_L(0.04) valtoindex_L(0.06) valtoindex_L(0.08) valtoindex_L(0.1) valtoindex_L(0.12)])
+xticklabels([0 0.02 0.04 0.06 0.08 0.10 0.12 0.14])
 
+figure(11) %Color for 120 nm
 
+im_120 = imtot(:,valtoindex_L(0.12),:)
 
+for i = 1:6
+    im_120 = [im_120 im_120];
+end
 
+imagesc(im_120)
+
+%CURVE FITTING LEAST SQUARES MAYBE DO MANUALLY
+
+%cw_b = 0.455 um
+%cw_g = 0.521 um
+%cw_r = 0.634 um
+
+MeanRefBlue_at_XnmO2 = 0.13
+MeanRefGreen_at_XnmO2 = 0.11
+MeanRefRed_at_XnmO2 = 0.12 
+Ref_Fitter = [MeanRefRed_at_XnmO2 MeanRefGreen_at_XnmO2 MeanRefBlue_at_XnmO2];
+
+Diff_at_72nm = Ref_Fitter - Gamma(:,valtoindex_L(0.072));
+Isequal_r = abs(Diff_at_72nm(:,1)) == min(abs(Diff_at_72nm(:,1)));
+Isequal_g = abs(Diff_at_72nm(:,2)) == min(abs(Diff_at_72nm(:,2)));
+Isequal_b = abs(Diff_at_72nm(:,3)) == min(abs(Diff_at_72nm(:,3)));
+Equal_r = find(Isequal_r == 1);
+Equal_g = find(Isequal_g == 1);
+Equal_b = find(Isequal_b == 1);
+
+Penalti = 1;
