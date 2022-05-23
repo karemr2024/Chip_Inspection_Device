@@ -263,3 +263,4 @@ Equal_g = find(Isequal_g == 1);
 Equal_b = find(Isequal_b == 1);
 
 Penalti = 1;
+gol = 2;
