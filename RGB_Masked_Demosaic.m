@@ -79,7 +79,7 @@ else
    disp(['User selected ', fullfile(BLight_Tiff_Name,BLight_Tiff_Path)]);
    BLight_Tiff = imread(strcat(BLight_Tiff_Path, BLight_Tiff_Name));
 end
-
+%%
 % Lighting uniformity:
 RLight_dem = demosaic(RLight_Tiff,'rggb');
 GLight_dem = demosaic(GLight_Tiff,'rggb');
@@ -139,24 +139,29 @@ imwrite(RGB_Combo_Unleaked_Demosaic,'RGB_Combo_Unleaked_Demosaic.tif')
 % 2. The way mean reflectance values are calculated does not account for zero values that may
 % occur in the pixels of interest.
 %%
-I_inR = (256*((R_im.*R_Mask)./max(R_im.*R_Mask)))./ 40.28;
-I_inG = (256*((G_im.*G_Mask)./max(G_im.*G_Mask)))./ 37.20;
-I_inB = (256*((B_im.*G_Mask)./max(B_im.*G_Mask)))./ 34.48;
+I_inR = (R_im.*R_Mask)./ .4028;
+I_inG = (G_im.*G_Mask)./ .3720;
+I_inB = (B_im.*G_Mask)./ .3448;
+
+% I_inR = (255*((R_im.*R_Mask)./max(max(R_im.*R_Mask))))./ 40.28;
+% I_inG = (255*((G_im.*G_Mask)./max(max((G_im.*G_Mask))))./ 37.20;
+% I_inB = (255*((B_im.*G_Mask)./max(max(B_im.*G_Mask))))./ 34.48;
+
 % Normalise intensity (Added on 18 MAY 2022)
-I_inR = 256*(I_inR./max(I_inR));
-I_inG = 256*(I_inG./max(I_inG));
-I_inB = 256*(I_inB./max(I_inB));
+I_inR = 255*(I_inR./max(max(I_inR)));
+I_inG = 255*(I_inG./max(max(I_inG)));
+I_inB = 255*(I_inB./max(max(I_inB)));
 %% 
-RefRed_at_XnmO2 = (256*(R_Chan./max(R_Chan)))./I_inR;
-RefGre_at_XnmO2 = (256*(G_Chan./max(G_Chan)))./I_inG;
-RefBlu_at_XnmO2 = (256*(B_Chan./max(B_Chan)))./I_inB;
+RefRed_at_XnmO2 = (255*(R_Chan./max(max(R_Chan))))./I_inR;
+RefGre_at_XnmO2 = (255*(G_Chan./max(max(G_Chan))))./I_inG;
+RefBlu_at_XnmO2 = (255*(B_Chan./max(max(B_Chan))))./I_inB;
 %%
 MeanRefRed_at_XnmO2 = mean(mean(nonzeros(RefRed_at_XnmO2)));
 MeanRefGre_at_XnmO2 = mean(mean(nonzeros(RefGre_at_XnmO2)));
 MeanRefBlu_at_XnmO2 = mean(mean(nonzeros(RefBlu_at_XnmO2)));
 
 Ref_Fitter = [MeanRefRed_at_XnmO2 MeanRefGre_at_XnmO2 MeanRefBlu_at_XnmO2];
-
+%%
 % Leaktest Stats:
 % Means of each nonzero pixel are taken for image taken under X colour (XLight_Tiff),
 % means of X_im (image under X coloured light, adjusted for leakage of the other two colours of light at dark)
