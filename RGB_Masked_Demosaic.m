@@ -148,13 +148,13 @@ I_inB = (B_im.*B_Mask)./ .3448;
 % I_inB = (255*((B_im.*G_Mask)./max(max(B_im.*G_Mask))))./ 34.48;
 
 % Normalise intensity (Added on 18 MAY 2022)
-I_inR = 255*(I_inR./max(max(I_inR)));
-I_inG = 255*(I_inG./max(max(I_inG)));
-I_inB = 255*(I_inB./max(max(I_inB)));
+I_inRn = 255*(I_inR./max(max(I_inR)));
+I_inGn = 255*(I_inG./max(max(I_inG)));
+I_inBn = 255*(I_inB./max(max(I_inB)));
 %% 
-RefRed_at_XnmO2 = (255*(R_Chan./max(max(R_Chan))))./I_inR;
-RefGre_at_XnmO2 = (255*(G_Chan./max(max(G_Chan))))./I_inG;
-RefBlu_at_XnmO2 = (255*(B_Chan./max(max(B_Chan))))./I_inB;
+RefRed_at_XnmO2 = (255*(R_Chan./max(max(R_Chan))))./I_inRn;
+RefGre_at_XnmO2 = (255*(G_Chan./max(max(G_Chan))))./I_inGn;
+RefBlu_at_XnmO2 = (255*(B_Chan./max(max(B_Chan))))./I_inBn;
 %%
 MeanRefRed_at_XnmO2 = mean(mean(nonzeros(RefRed_at_XnmO2)));
 MeanRefGre_at_XnmO2 = mean(mean(nonzeros(RefGre_at_XnmO2)));
