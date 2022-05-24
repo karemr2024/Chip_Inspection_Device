@@ -160,7 +160,29 @@ MeanRefRed_at_XnmO2 = mean(mean(nonzeros(RefRed_at_XnmO2)));
 MeanRefGre_at_XnmO2 = mean(mean(nonzeros(RefGre_at_XnmO2)));
 MeanRefBlu_at_XnmO2 = mean(mean(nonzeros(RefBlu_at_XnmO2)));
 
-Ref_Fitter = [MeanRefRed_at_XnmO2 MeanRefGre_at_XnmO2 MeanRefBlu_at_XnmO2];
+load("reftocurve_data.mat")
+esti_L = reftocurve(Ref_Red,Ref_Green,Ref_Blue);
+
+figure(5)
+
+hold on
+plot(lambda,Gamma(:,valtoindex_L(abs(esti_L))),'m--','LineWidth',2)           %Estimated nm thickness
+plot(lambda,Gamma(:,valtoindex_L(abs(esti_L+0.001))),'c--','LineWidth',2)     %Estimated +1 nm thickness
+plot(lambda,Gamma(:,valtoindex_L(abs(esti_L-0.001))),'y--','LineWidth',2)     %Estimated -1 nm thickness
+
+plot(cw_r,Ref_Red,'r.','MarkerSize',30)
+plot(cw_g,Ref_Green,'g.','MarkerSize',30)
+plot(cw_b,Ref_Blue,'b.','MarkerSize',30)
+xlabel('lambda (\mum)')
+ylabel('Reflectance')
+xlim([0.4 0.68])
+ylim([0 0.45])
+legend1 = sprintf('L = %0.2f nm', 1000*esti_L);
+legend2 = sprintf('L = %0.2f nm', 1000*(esti_L+0.001));
+legend3 = sprintf('L = %0.2f nm', 1000*(esti_L-0.001));
+legend(legend1, legend2, legend3,'Ref at R','Ref at G','Ref at B','location','bestoutside')
+fprintf('Estimated thickness is %f nm \n',esti_L*1000)
+
 %%
 % Leaktest Stats:
 % Means of each nonzero pixel are taken for image taken under X colour (XLight_Tiff),
