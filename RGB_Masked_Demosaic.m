@@ -161,7 +161,7 @@ MeanRefGre_at_XnmO2 = mean(mean(nonzeros(RefGre_at_XnmO2)));
 MeanRefBlu_at_XnmO2 = mean(mean(nonzeros(RefBlu_at_XnmO2)));
 
 load("reftocurve_data.mat")
-esti_L = reftocurve(Ref_Red,Ref_Green,Ref_Blue);
+esti_L = reftocurve(MeanRefRed_at_XnmO2,MeanRefGre_at_XnmO2,MeanRefBlu_at_XnmO2);
 
 figure(5)
 
@@ -170,9 +170,9 @@ plot(lambda,Gamma(:,valtoindex_L(abs(esti_L))),'m--','LineWidth',2)           %E
 plot(lambda,Gamma(:,valtoindex_L(abs(esti_L+0.001))),'c--','LineWidth',2)     %Estimated +1 nm thickness
 plot(lambda,Gamma(:,valtoindex_L(abs(esti_L-0.001))),'y--','LineWidth',2)     %Estimated -1 nm thickness
 
-plot(cw_r,Ref_Red,'r.','MarkerSize',30)
-plot(cw_g,Ref_Green,'g.','MarkerSize',30)
-plot(cw_b,Ref_Blue,'b.','MarkerSize',30)
+plot(cw_r,MeanRefRed_at_XnmO2,'r.','MarkerSize',30)
+plot(cw_g,MeanRefGre_at_XnmO2,'g.','MarkerSize',30)
+plot(cw_b,MeanRefRed_at_XnmO2,'b.','MarkerSize',30)
 xlabel('lambda (\mum)')
 ylabel('Reflectance')
 xlim([0.4 0.68])
