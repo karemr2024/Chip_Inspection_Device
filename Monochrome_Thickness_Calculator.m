@@ -60,9 +60,15 @@ else
 end
 
 clearvars -except B_Tiff_0nm B_Tiff_Xnm Dark_Tiff_0nm G_Tiff_0nm G_Tiff_Xnm B_Tiff_0nm B_Tiff_Xnm R_Tiff_0nm R_Tiff_Xnm
-%%
 
-theoric_L = (input('Enter the thickness of your chip in nm (if unknown, enter UNKNOWN) : \n'))/1000;
+prompt_NorS = input('Do you know the thickness of your chip? (Y/N)\n', "s");
+if prompt_NorS == 'Y'
+theoric_L = (input('Enter the thickness of your chip in nm: \n'))/1000;
+else
+theoric_L = 'UNKNOWN';
+end
+
+%%
 
 load("Imaging_Data.mat")
 RGB_Combo_0nm = R_Tiff_0nm + G_Tiff_0nm + B_Tiff_0nm; %Add R,G,B Channels to create a RGB combo image
@@ -110,11 +116,6 @@ MeanRefBlu_at_XnmO2 = mean(mean(RefBlu_at_XnmO2));
 esti_L = reftocurve(MeanRefRed_at_XnmO2,MeanRefGre_at_XnmO2,MeanRefBlu_at_XnmO2);
 esti_L_lsqr = reftocurve_lsqr(MeanRefRed_at_XnmO2,MeanRefGre_at_XnmO2,MeanRefBlu_at_XnmO2);
 
-if isnumeric(theoric_L)
-percent_error = 100*((abs(esti_L_lsqr-theoric_L))/theoric_L);
-end
-
-
 figure(15)
 
 hold on
@@ -132,9 +133,16 @@ ylim([0 1])
 legend1 = sprintf('L = %0.2f nm', 1000*esti_L_lsqr);
 legend2 = sprintf('L = 120 nm');
 legend(legend1, legend2,'Ref at R','Ref at G','Ref at B','location','bestoutside')
+
+if isnumeric(theoric_L)
+percent_error = 100*((abs(esti_L_lsqr-theoric_L))/theoric_L);
 fprintf('Actual thickness is %f nm \n',theoric_L*1000)
 fprintf('Estimated thickness is %f nm \n',esti_L_lsqr*1000)
-fprintf('Percent Error is %f',percent_error)
+fprintf("Percent error is %f", percent_error)
+elseif theoric_L == 'UNKNOWN'
+fprintf('Estimated thickness is %f nm \n',esti_L_lsqr*1000)
+disp('Percent Error is not known')
+end
 
 %branch test
 
