@@ -136,6 +136,8 @@ fprintf('Actual thickness is %f nm \n',theoric_L*1000)
 fprintf('Estimated thickness is %f nm \n',esti_L_lsqr*1000)
 fprintf('Percent Error is %f',percent_error)
 
+%test github
+
 
 
 
