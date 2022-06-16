@@ -59,9 +59,9 @@ Ref_at_120nm_B = Gamma(valtoindex_lambda(cw_b),valtoindex_L(0.12));
 G_Tiff_Bothnm_Crop = AreaSelection_Circle_Mod(G_Tiff,x_crop_Bothnm,y_crop_Bothnm);
 B_Tiff_Bothnm_Crop = AreaSelection_Circle_Mod(B_Tiff,x_crop_Bothnm,y_crop_Bothnm);
 
-R_Cutoff_Value = 16000;
+R_Cutoff_Value = 11000;
 G_Cutoff_Value = 6000;
-B_Cutoff_Value = 8000;
+B_Cutoff_Value = 15000;
 
 R_Cutoff_Mask_0nm = uint16(R_Tiff_Bothnm_Crop > R_Cutoff_Value);
 G_Cutoff_Mask_0nm = uint16(G_Tiff_Bothnm_Crop > G_Cutoff_Value);
@@ -79,53 +79,120 @@ R_Tiff_Xnm_Crop = R_Tiff_Bothnm_Crop.*R_Cutoff_Mask_Xnm;
 G_Tiff_Xnm_Crop = G_Tiff_Bothnm_Crop.*G_Cutoff_Mask_Xnm;
 B_Tiff_Xnm_Crop = B_Tiff_Bothnm_Crop.*B_Cutoff_Mask_Xnm;
 %%
+figure(5)
+subplot(1,2,1)
+imshow(R_Tiff_Xnm_Crop) 
+subplot(1,2,2)
+imshow(R_Tiff_0nm_Crop)
 
-mean_R_0nm = mean(mean(nonzeros(R_Tiff_0nm_Crop)));
-mean_G_0nm = mean(mean(nonzeros(G_Tiff_0nm_Crop)));
-mean_B_0nm = mean(mean(nonzeros(B_Tiff_0nm_Crop)));
-mean_R_Xnm = mean(mean(nonzeros(R_Tiff_Xnm_Crop)));
-mean_G_Xnm = mean(mean(nonzeros(G_Tiff_Xnm_Crop)));
-mean_B_Xnm = mean(mean(nonzeros(B_Tiff_Xnm_Crop)));
+figure(6)
+subplot(1,2,1)
+imshow(G_Tiff_Xnm_Crop) 
+subplot(1,2,2)
+imshow(G_Tiff_0nm_Crop)
 
-I_inR = (double(mean_R_0nm) ./ Ref_at_0nm_R);
-I_inG = (double(mean_G_0nm) ./ Ref_at_0nm_G);
-I_inB = (double(mean_B_0nm) ./ Ref_at_0nm_B);
-
-RefRed_at_XnmO2 = (double(mean_R_Xnm)./I_inR);
-RefGre_at_XnmO2 = (double(mean_G_Xnm)./I_inG);
-RefBlu_at_XnmO2 = (double(mean_B_Xnm)./I_inB);
-
-% numel_R_Tiff_Xnm_Crop = sum(sum(R_Tiff_Xnm_Crop>0));
-% numel_G_Tiff_Xnm_Crop = sum(sum(G_Tiff_Xnm_Crop>0));
-% numel_B_Tiff_Xnm_Crop = sum(sum(B_Tiff_Xnm_Crop>0));
-% 
-% numel_R_Tiff_0nm_Crop = sum(sum(R_Tiff_0nm_Crop>0));
-% numel_G_Tiff_0nm_Crop = sum(sum(G_Tiff_0nm_Crop>0));
-% numel_B_Tiff_0nm_Crop = sum(sum(B_Tiff_0nm_Crop>0));
+figure(7)
+subplot(1,2,1)
+imshow(B_Tiff_Xnm_Crop) 
+subplot(1,2,2)
+imshow(B_Tiff_0nm_Crop)
 %%
-% [rows, cols, ~] = size(R_Tiff_Bothnm_Crop);
-% %
-% R_Center_x = round((1+rows)/2);
-% R_Center_y = round((1+cols)/2);
+
+% mean_R_0nm = mean(mean(nonzeros(R_Tiff_0nm_Crop)));
+% mean_G_0nm = mean(mean(nonzeros(G_Tiff_0nm_Crop)));
+% mean_B_0nm = mean(mean(nonzeros(B_Tiff_0nm_Crop)));
+% mean_R_Xnm = mean(mean(nonzeros(R_Tiff_Xnm_Crop)));
+% mean_G_Xnm = mean(mean(nonzeros(G_Tiff_Xnm_Crop)));
+% mean_B_Xnm = mean(mean(nonzeros(B_Tiff_Xnm_Crop)));
+
+% I_inR = (double(mean_R_0nm) ./ Ref_at_0nm_R);
+% I_inG = (double(mean_G_0nm) ./ Ref_at_0nm_G);
+% I_inB = (double(mean_B_0nm) ./ Ref_at_0nm_B);
 % 
-% numel_crop_R = numel_R_Tiff_0nm_Crop;
-% numel_crop_G = numel_G_Tiff_0nm_Crop;
-% numel_crop_B = numel_B_Tiff_0nm_Crop;
-% 
-% rect3_R_w = round(sqrt(numel_crop_R));
-% rect4_R_h = round(sqrt(numel_crop_R));
-% 
-% rect_R = [R_Center_x-50 R_Center_y-50  rect3_R_w rect4_R_h];
-% cropped_im_R = imcrop(R_Tiff_Xnm_Crop, rect_R);
-% figure(5)
-% imshow(cropped_im_R)
-% numel_crop_R_real = numel(cropped_im_R)
-% %%
-% 
-% subplot(1,2,1)
-% imshow(R_Tiff_Xnm_Crop)
-% subplot(1,2,2)
-% imshow(R_Tiff_0nm_Crop)
+% RefRed_at_XnmO2 = (double(mean_R_Xnm)./I_inR);
+% RefGre_at_XnmO2 = (double(mean_G_Xnm)./I_inG);
+% RefBlu_at_XnmO2 = (double(mean_B_Xnm)./I_inB);
+
+numel_R_Tiff_Xnm_Crop = sum(sum(R_Tiff_Xnm_Crop>0));
+numel_G_Tiff_Xnm_Crop = sum(sum(G_Tiff_Xnm_Crop>0));
+numel_B_Tiff_Xnm_Crop = sum(sum(B_Tiff_Xnm_Crop>0));
+
+numel_R_Tiff_0nm_Crop = sum(sum(R_Tiff_0nm_Crop>0));
+numel_G_Tiff_0nm_Crop = sum(sum(G_Tiff_0nm_Crop>0));
+numel_B_Tiff_0nm_Crop = sum(sum(B_Tiff_0nm_Crop>0));
+%
+[rowsR, colsR, ~] = size(R_Tiff_Bothnm_Crop);
+[rowsG, colsG, ~] = size(G_Tiff_Bothnm_Crop);
+[rowsB, colsB, ~] = size(B_Tiff_Bothnm_Crop);
+%
+R_Center_x = round((1+rowsR)/2);
+R_Center_y = round((1+colsR)/2);
+G_Center_x = round((1+rowsG)/2);
+G_Center_y = round((1+colsG)/2);
+B_Center_x = round((1+rowsB)/2);
+B_Center_y = round((1+colsB)/2);
+
+numel_crop_R = numel_R_Tiff_0nm_Crop;
+numel_crop_G = numel_G_Tiff_0nm_Crop;
+numel_crop_B = numel_B_Tiff_0nm_Crop;
+
+rect3_R_w = round(sqrt(numel_crop_R));
+rect4_R_h = round(sqrt(numel_crop_R));
+rect3_G_w = round(sqrt(numel_crop_G));
+rect4_G_h = round(sqrt(numel_crop_G));
+rect3_B_w = round(sqrt(numel_crop_B));
+rect4_B_h = round(sqrt(numel_crop_B));
+
+rect_R = [R_Center_x-50 R_Center_y-50  rect3_R_w rect4_R_h];
+rect_G = [G_Center_x-50 G_Center_y-50  rect3_G_w rect4_G_h]; %DO NOT HARD CODE CHANGE -50
+rect_B = [B_Center_x-50 B_Center_y-50  rect3_B_w rect4_B_h];
+
+cropped_im_R_Xnm = imcrop(R_Tiff_Xnm_Crop, rect_R);
+cropped_im_G_Xnm = imcrop(G_Tiff_Xnm_Crop, rect_G);
+cropped_im_B_Xnm = imcrop(B_Tiff_Xnm_Crop, rect_B);
+
+figure(8)
+imshow(cropped_im_R_Xnm)
+title('Cropped R Xnm ROI')
+figure(9)
+imshow(cropped_im_G_Xnm)
+title('Cropped G Xnm ROI')
+figure(10)
+imshow(cropped_im_B_Xnm)
+title('Cropped B Xnm ROI')
+
+numel_crop_R_real = numel(cropped_im_R_Xnm)
+numel_crop_G_real = numel(cropped_im_G_Xnm)
+numel_crop_B_real = numel(cropped_im_B_Xnm)
+
+nonzeros_R_0nm = nonzeros(R_Tiff_0nm_Crop); %numel = 15129
+nonzeros_R_Xnm = nonzeros(cropped_im_R_Xnm); %numel = 14851
+nonzeros_G_0nm = nonzeros(G_Tiff_0nm_Crop); %numel = 15129
+nonzeros_G_Xnm = nonzeros(cropped_im_G_Xnm); %numel = 14851
+nonzeros_B_0nm = nonzeros(B_Tiff_0nm_Crop); %numel = 15129
+nonzeros_B_Xnm = nonzeros(cropped_im_B_Xnm); %numel = 14851
+
+if numel(nonzeros_R_0nm) > numel(nonzeros_R_Xnm)
+    nonzeros_R_0nm = nonzeros_R_0nm(1:numel(nonzeros_R_Xnm))
+elseif numel(nonzeros_R_0nm) < numel(nonzeros_R_Xnm)
+    nonzeros_R_Xnm = nonzeros_R_Xnm(1:numel(nonzeros_R_0nm)) 
+end
+
+if numel(nonzeros_G_0nm) > numel(nonzeros_G_Xnm)
+    nonzeros_G_0nm = nonzeros_G_0nm(1:numel(nonzeros_G_Xnm))
+elseif numel(nonzeros_G_0nm) < numel(nonzeros_G_Xnm)
+    nonzeros_G_Xnm = nonzeros_G_Xnm(1:numel(nonzeros_G_0nm)) 
+end
+
+if numel(nonzeros_B_0nm) > numel(nonzeros_B_Xnm)
+    nonzeros_B_0nm = nonzeros_B_0nm(1:numel(nonzeros_B_Xnm))
+elseif numel(nonzeros_B_0nm) < numel(nonzeros_B_Xnm)
+    nonzeros_B_Xnm = nonzeros_B_Xnm(1:numel(nonzeros_B_0nm)) 
+end
+
+%%
+
+
 % [rows, columns, ~] = size(R_Tiff_Bothnm_Crop)
 % R_Tiff_Xnm_Crop = zeros(rows,columns) 
 
@@ -138,30 +205,30 @@ RefBlu_at_XnmO2 = (double(mean_B_Xnm)./I_inB);
 
 
 %Intensity In calculation (calibration) I_in = I_out_Si / Reflectance
-% %
-% I_inR = round(double(R_Tiff_0nm_Crop) ./ Ref_at_0nm_R);
-% I_inG = round(double(G_Tiff_0nm_Crop) ./ Ref_at_0nm_G);
-% I_inB = round(double(B_Tiff_0nm_Crop) ./ Ref_at_0nm_B);
-% %%
-% %Reflectance from oxide calculation: Reflectance_Oxide = I_Out_SiO2 / I_in
-% %Multiplied with masks to eliminate other pixels and thus divide by zeros.
-% 
-% RefRed_at_XnmO2 = (double(R_Tiff_Xnm_Crop)./I_inR);
-% RefGre_at_XnmO2 = (double(G_Tiff_Xnm_Crop)./I_inG);
-% RefBlu_at_XnmO2 = (double(B_Tiff_Xnm_Crop)./I_inB);
 %
+I_inR = round(double(nonzeros_R_0nm) ./ Ref_at_0nm_R);
+I_inG = round(double(nonzeros_G_0nm) ./ Ref_at_0nm_G);
+I_inB = round(double(nonzeros_B_0nm) ./ Ref_at_0nm_B);
+%%
+%Reflectance from oxide calculation: Reflectance_Oxide = I_Out_SiO2 / I_in
+%Multiplied with masks to eliminate other pixels and thus divide by zeros.
+
+RefRed_at_XnmO2 = (double(nonzeros_R_Xnm)./I_inR);
+RefGre_at_XnmO2 = (double(nonzeros_G_Xnm)./I_inG);
+RefBlu_at_XnmO2 = (double(nonzeros_B_Xnm)./I_inB);
+%%
 %Take the average of Reflectance values in R,G,B only pixels
 
-% MeanRefRed_at_XnmO2 = mean(mean(RefRed_at_XnmO2));
-% MeanRefGre_at_XnmO2 = mean(mean(RefGre_at_XnmO2));
-% MeanRefBlu_at_XnmO2 = mean(mean(RefBlu_at_XnmO2));
+MeanRefRed_at_XnmO2 = mean(mean(RefRed_at_XnmO2));
+MeanRefGre_at_XnmO2 = mean(mean(RefGre_at_XnmO2));
+MeanRefBlu_at_XnmO2 = mean(mean(RefBlu_at_XnmO2));
 
 %use reftocurve function to estimate thickness from these reflectance values
-% esti_L = reftocurve(MeanRefRed_at_XnmO2,MeanRefGre_at_XnmO2,MeanRefBlu_at_XnmO2);
-% esti_L_lsqr = reftocurve_lsqr(MeanRefRed_at_XnmO2,MeanRefGre_at_XnmO2,MeanRefBlu_at_XnmO2);
+esti_L = reftocurve(MeanRefRed_at_XnmO2,MeanRefGre_at_XnmO2,MeanRefBlu_at_XnmO2);
+esti_L_lsqr = reftocurve_lsqr(MeanRefRed_at_XnmO2,MeanRefGre_at_XnmO2,MeanRefBlu_at_XnmO2);
 
-esti_L = reftocurve(RefRed_at_XnmO2,RefGre_at_XnmO2,RefBlu_at_XnmO2);
-esti_L_lsqr = reftocurve_lsqr(RefRed_at_XnmO2,RefGre_at_XnmO2,RefBlu_at_XnmO2);
+% esti_L = reftocurve(RefRed_at_XnmO2,RefGre_at_XnmO2,RefBlu_at_XnmO2);
+% esti_L_lsqr = reftocurve_lsqr(RefRed_at_XnmO2,RefGre_at_XnmO2,RefBlu_at_XnmO2);
 
 figure(15)
 
@@ -169,13 +236,13 @@ hold on
 plot(lambda,Gamma(:,valtoindex_L(abs(esti_L_lsqr))),'m--','LineWidth',2)           %Estimated nm thickness
 plot(lambda,Gamma(:,valtoindex_L(0.12)),'c--','LineWidth',2)                       %120 nm thickness
 
-% plot(cw_r,MeanRefRed_at_XnmO2,'r.','MarkerSize',30)
-% plot(cw_g,MeanRefGre_at_XnmO2,'g.','MarkerSize',30)
-% plot(cw_b,MeanRefBlu_at_XnmO2,'b.','MarkerSize',30)
+plot(cw_r,MeanRefRed_at_XnmO2,'r.','MarkerSize',30)
+plot(cw_g,MeanRefGre_at_XnmO2,'g.','MarkerSize',30)
+plot(cw_b,MeanRefBlu_at_XnmO2,'b.','MarkerSize',30)
 
-plot(cw_r,RefRed_at_XnmO2,'r.','MarkerSize',30)
-plot(cw_g,RefGre_at_XnmO2,'g.','MarkerSize',30)
-plot(cw_b,RefBlu_at_XnmO2,'b.','MarkerSize',30)
+% plot(cw_r,RefRed_at_XnmO2,'r.','MarkerSize',30)
+% plot(cw_g,RefGre_at_XnmO2,'g.','MarkerSize',30)
+% plot(cw_b,RefBlu_at_XnmO2,'b.','MarkerSize',30)
 
 xlabel('lambda (\mum)')
 ylabel('Reflectance')
