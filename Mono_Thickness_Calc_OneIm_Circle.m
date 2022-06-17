@@ -37,7 +37,7 @@ else
 theoric_L = 'UNKNOWN';
 end
 
-%%
+%
 
 load("Imaging_Data.mat")
 
@@ -59,8 +59,12 @@ Ref_at_120nm_B = Gamma(valtoindex_lambda(cw_b),valtoindex_L(0.12));
 G_Tiff_Bothnm_Crop = AreaSelection_Circle_Mod(G_Tiff,x_crop_Bothnm,y_crop_Bothnm);
 B_Tiff_Bothnm_Crop = AreaSelection_Circle_Mod(B_Tiff,x_crop_Bothnm,y_crop_Bothnm);
 
-R_Cutoff_Value = 11000;
-G_Cutoff_Value = 6000;
+%%
+
+
+
+R_Cutoff_Value = 19000;
+G_Cutoff_Value = 10000;
 B_Cutoff_Value = 15000;
 
 R_Cutoff_Mask_0nm = uint16(R_Tiff_Bothnm_Crop > R_Cutoff_Value);
@@ -78,7 +82,7 @@ B_Tiff_0nm_Crop = B_Tiff_Bothnm_Crop.*B_Cutoff_Mask_0nm;
 R_Tiff_Xnm_Crop = R_Tiff_Bothnm_Crop.*R_Cutoff_Mask_Xnm;
 G_Tiff_Xnm_Crop = G_Tiff_Bothnm_Crop.*G_Cutoff_Mask_Xnm;
 B_Tiff_Xnm_Crop = B_Tiff_Bothnm_Crop.*B_Cutoff_Mask_Xnm;
-%%
+%
 figure(5)
 subplot(1,2,1)
 imshow(R_Tiff_Xnm_Crop) 
@@ -96,7 +100,7 @@ subplot(1,2,1)
 imshow(B_Tiff_Xnm_Crop) 
 subplot(1,2,2)
 imshow(B_Tiff_0nm_Crop)
-%%
+%
 
 % mean_R_0nm = mean(mean(nonzeros(R_Tiff_0nm_Crop)));
 % mean_G_0nm = mean(mean(nonzeros(G_Tiff_0nm_Crop)));
@@ -190,7 +194,7 @@ elseif numel(nonzeros_B_0nm) < numel(nonzeros_B_Xnm)
     nonzeros_B_Xnm = nonzeros_B_Xnm(1:numel(nonzeros_B_0nm)) 
 end
 
-%%
+%
 
 
 % [rows, columns, ~] = size(R_Tiff_Bothnm_Crop)
@@ -209,14 +213,14 @@ end
 I_inR = round(double(nonzeros_R_0nm) ./ Ref_at_0nm_R);
 I_inG = round(double(nonzeros_G_0nm) ./ Ref_at_0nm_G);
 I_inB = round(double(nonzeros_B_0nm) ./ Ref_at_0nm_B);
-%%
+%
 %Reflectance from oxide calculation: Reflectance_Oxide = I_Out_SiO2 / I_in
 %Multiplied with masks to eliminate other pixels and thus divide by zeros.
 
 RefRed_at_XnmO2 = (double(nonzeros_R_Xnm)./I_inR);
 RefGre_at_XnmO2 = (double(nonzeros_G_Xnm)./I_inG);
 RefBlu_at_XnmO2 = (double(nonzeros_B_Xnm)./I_inB);
-%%
+%
 %Take the average of Reflectance values in R,G,B only pixels
 
 MeanRefRed_at_XnmO2 = mean(mean(RefRed_at_XnmO2));
