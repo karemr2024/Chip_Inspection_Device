@@ -65,7 +65,7 @@ B_Tiff_Bothnm_Crop = AreaSelection_Circle_Mod(B_Tiff,x_crop_Bothnm,y_crop_Bothnm
 
 R_Cutoff_Value = 19000;
 G_Cutoff_Value = 10000;
-B_Cutoff_Value = 15000;
+B_Cutoff_Value = 27000;
 
 R_Cutoff_Mask_0nm = uint16(R_Tiff_Bothnm_Crop > R_Cutoff_Value);
 G_Cutoff_Mask_0nm = uint16(G_Tiff_Bothnm_Crop > G_Cutoff_Value);
@@ -82,7 +82,8 @@ B_Tiff_0nm_Crop = B_Tiff_Bothnm_Crop.*B_Cutoff_Mask_0nm;
 R_Tiff_Xnm_Crop = R_Tiff_Bothnm_Crop.*R_Cutoff_Mask_Xnm;
 G_Tiff_Xnm_Crop = G_Tiff_Bothnm_Crop.*G_Cutoff_Mask_Xnm;
 B_Tiff_Xnm_Crop = B_Tiff_Bothnm_Crop.*B_Cutoff_Mask_Xnm;
-%
+
+%%
 figure(5)
 subplot(1,2,1)
 imshow(R_Tiff_Xnm_Crop) 
@@ -100,7 +101,7 @@ subplot(1,2,1)
 imshow(B_Tiff_Xnm_Crop) 
 subplot(1,2,2)
 imshow(B_Tiff_0nm_Crop)
-%
+%%
 
 % mean_R_0nm = mean(mean(nonzeros(R_Tiff_0nm_Crop)));
 % mean_G_0nm = mean(mean(nonzeros(G_Tiff_0nm_Crop)));
@@ -140,21 +141,25 @@ numel_crop_R = numel_R_Tiff_0nm_Crop;
 numel_crop_G = numel_G_Tiff_0nm_Crop;
 numel_crop_B = numel_B_Tiff_0nm_Crop;
 
-rect3_R_w = round(sqrt(numel_crop_R));
-rect4_R_h = round(sqrt(numel_crop_R));
-rect3_G_w = round(sqrt(numel_crop_G));
-rect4_G_h = round(sqrt(numel_crop_G));
-rect3_B_w = round(sqrt(numel_crop_B));
-rect4_B_h = round(sqrt(numel_crop_B));
+% rect3_R_w = round(sqrt(numel_crop_R));
+% rect4_R_h = round(sqrt(numel_crop_R));
+% rect3_G_w = round(sqrt(numel_crop_G));
+% rect4_G_h = round(sqrt(numel_crop_G));
+% rect3_B_w = round(sqrt(numel_crop_B));
+% rect4_B_h = round(sqrt(numel_crop_B));
+% 
+% rect_R = [R_Center_x-50 R_Center_y-50  rect3_R_w rect4_R_h];
+% rect_G = [G_Center_x-50 G_Center_y-50  rect3_G_w rect4_G_h]; %DO NOT HARD CODE CHANGE -50
+% rect_B = [B_Center_x-50 B_Center_y-50  rect3_B_w rect4_B_h];
+% 
+% cropped_im_R_Xnm = imcrop(R_Tiff_Xnm_Crop, rect_R);
+% cropped_im_G_Xnm = imcrop(G_Tiff_Xnm_Crop, rect_G);
+% cropped_im_B_Xnm = imcrop(B_Tiff_Xnm_Crop, rect_B);
 
-rect_R = [R_Center_x-50 R_Center_y-50  rect3_R_w rect4_R_h];
-rect_G = [G_Center_x-50 G_Center_y-50  rect3_G_w rect4_G_h]; %DO NOT HARD CODE CHANGE -50
-rect_B = [B_Center_x-50 B_Center_y-50  rect3_B_w rect4_B_h];
-
-cropped_im_R_Xnm = imcrop(R_Tiff_Xnm_Crop, rect_R);
-cropped_im_G_Xnm = imcrop(G_Tiff_Xnm_Crop, rect_G);
-cropped_im_B_Xnm = imcrop(B_Tiff_Xnm_Crop, rect_B);
-
+[cropped_im_R_Xnm,x_crop_Xnm,y_crop_Xnm] = AreaSelection_Circle(R_Tiff_Bothnm_Crop);
+cropped_im_G_Xnm = AreaSelection_Circle_Mod(G_Tiff_Bothnm_Crop,x_crop_Xnm,y_crop_Xnm);
+cropped_im_B_Xnm = AreaSelection_Circle_Mod(B_Tiff_Bothnm_Crop,x_crop_Xnm,y_crop_Xnm);
+%%
 figure(8)
 imshow(cropped_im_R_Xnm)
 title('Cropped R Xnm ROI')
@@ -164,7 +169,7 @@ title('Cropped G Xnm ROI')
 figure(10)
 imshow(cropped_im_B_Xnm)
 title('Cropped B Xnm ROI')
-
+%%
 numel_crop_R_real = numel(cropped_im_R_Xnm)
 numel_crop_G_real = numel(cropped_im_G_Xnm)
 numel_crop_B_real = numel(cropped_im_B_Xnm)
@@ -175,7 +180,7 @@ nonzeros_G_0nm = nonzeros(G_Tiff_0nm_Crop); %numel = 15129
 nonzeros_G_Xnm = nonzeros(cropped_im_G_Xnm); %numel = 14851
 nonzeros_B_0nm = nonzeros(B_Tiff_0nm_Crop); %numel = 15129
 nonzeros_B_Xnm = nonzeros(cropped_im_B_Xnm); %numel = 14851
-
+%%
 if numel(nonzeros_R_0nm) > numel(nonzeros_R_Xnm)
     nonzeros_R_0nm = nonzeros_R_0nm(1:numel(nonzeros_R_Xnm))
 elseif numel(nonzeros_R_0nm) < numel(nonzeros_R_Xnm)
@@ -194,7 +199,7 @@ elseif numel(nonzeros_B_0nm) < numel(nonzeros_B_Xnm)
     nonzeros_B_Xnm = nonzeros_B_Xnm(1:numel(nonzeros_B_0nm)) 
 end
 
-%
+%%
 
 
 % [rows, columns, ~] = size(R_Tiff_Bothnm_Crop)
