@@ -2,6 +2,7 @@
 % DIR returns as a structure array.  You will need to use () and . to get
 % the file names.
 % Only works for files taken within the same day
+clearvars; clc; close all;
 
 imagefiles = dir('**//*.tif');      
 nfiles = length(imagefiles);
@@ -28,6 +29,10 @@ end
 tot_time = timestamps{nfiles}(1,:) - timestamps{1}(1,:); %total time between first and last image
 t_in_secs = (tot_time(1,1)*3600) + (tot_time(1,2)*60) + tot_time(1,3);
 
+intensities = 100.*(intensities./max(intensities));
+%%
 x = linspace(0, t_in_secs, nfiles);
 y = intensities;
 plot(x,y)
+ylim([90 100])
+title('Intensity vs Time for Red Image')
