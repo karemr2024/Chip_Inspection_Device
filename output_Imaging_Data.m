@@ -87,5 +87,12 @@ cw_b = (lambda(index2b)+lambda(index1b))/2;
 cw_g = (lambda(index2g)+lambda(index1g))/2;
 cw_r = (lambda(index2r)+lambda(index1r))/2;
 
-clearvars -except Gamma L lambda cw_b cw_g cw_r 
+Ref_at_0nm_R = Gamma(valtoindex_lambda(cw_r),valtoindex_L(0));
+Ref_at_0nm_G = Gamma(valtoindex_lambda(cw_g),valtoindex_L(0));
+Ref_at_0nm_B = Gamma(valtoindex_lambda(cw_b),valtoindex_L(0));
+Ref_at_120nm_R = Gamma(valtoindex_lambda(cw_r),valtoindex_L(0.12));
+Ref_at_120nm_G = Gamma(valtoindex_lambda(cw_g),valtoindex_L(0.12));
+Ref_at_120nm_B = Gamma(valtoindex_lambda(cw_b),valtoindex_L(0.12));
+
+clearvars -except Gamma L lambda cw_b cw_g cw_r Ref_at_0nm_R Ref_at_0nm_G Ref_at_0nm_B Ref_at_120nm_R Ref_at_120nm_G Ref_at_120nm_B
 save("Imaging_Data.mat")
