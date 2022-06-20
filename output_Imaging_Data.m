@@ -94,5 +94,17 @@ Ref_at_120nm_R = Gamma(valtoindex_lambda(cw_r),valtoindex_L(0.12));
 Ref_at_120nm_G = Gamma(valtoindex_lambda(cw_g),valtoindex_L(0.12));
 Ref_at_120nm_B = Gamma(valtoindex_lambda(cw_b),valtoindex_L(0.12));
 
-clearvars -except Gamma L lambda cw_b cw_g cw_r Ref_at_0nm_R Ref_at_0nm_G Ref_at_0nm_B Ref_at_120nm_R Ref_at_120nm_G Ref_at_120nm_B
+B_Si = [10.6684293 0.0030434748 1.54133408]; %B Constants for Si [B1, B2, B3]
+B_SiO = [0.6961663 0.4079426 0.8974794]; %B Constants for SiO2 [B1, B2, B3]
+
+C_Si = [0.301516485 1.13475115 1104]; %C Constants for Si [C1, C2, C3]
+C_SiO = [0.0684043 0.1162414 9.896161]; %C Constants for SiO2 [C1, C2, C3]
+
+nsqrSi =sellmeier(B_Si,C_Si,lambda); %Find refractive index values for Si at each wavelength
+nsqrSiO =sellmeier(B_SiO,C_SiO,lambda); %Find refractive index values for SiO2 at each wavelength
+
+nrSi = (sqrt(nsqrSi)+conj(sqrt(nsqrSi)))/2; %Si refractive index to input in multidiels
+nrSiO = (sqrt(nsqrSiO)+conj(sqrt(nsqrSiO)))/2; %SiO2 refractive index to input in multidiels
+
+clearvars -except Gamma L lambda cw_b cw_g cw_r Ref_at_0nm_R Ref_at_0nm_G Ref_at_0nm_B Ref_at_120nm_R Ref_at_120nm_G Ref_at_120nm_B B_Si B_SiO C_Si C_SiO nsqrSi nsqrSiO nrSi nrSiO 
 save("Imaging_Data.mat")

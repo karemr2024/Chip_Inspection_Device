@@ -1,4 +1,5 @@
 clc; clear all; close all;
+load("Imaging_Data.mat")
 load('Osram_Data.mat')
 
 Gamma1_n_1 = [];
