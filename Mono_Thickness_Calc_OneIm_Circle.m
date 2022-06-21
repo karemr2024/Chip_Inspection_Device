@@ -36,7 +36,7 @@ theoric_L = (input('Enter the thickness of your chip in nm: \n'))/1000;
 else
 theoric_L = 'UNKNOWN';
 end
-
+%%
 load("Imaging_Data.mat")
 
 RGB_Combo = R_Tiff + G_Tiff + B_Tiff; %Add R,G,B Channels to create a RGB combo image
@@ -45,13 +45,38 @@ RGB_Combo = R_Tiff + G_Tiff + B_Tiff; %Add R,G,B Channels to create a RGB combo 
 G_Tiff_Bothnm_Crop = AreaSelection_Circle_Mod(G_Tiff,x_crop_Bothnm,y_crop_Bothnm);
 B_Tiff_Bothnm_Crop = AreaSelection_Circle_Mod(B_Tiff,x_crop_Bothnm,y_crop_Bothnm);
 
-[cropped_im_R_Xnm,x_crop_Xnm,y_crop_Xnm] = AreaSelection_Circle_2(R_Tiff_Bothnm_Crop);
-cropped_im_G_Xnm = AreaSelection_Circle_Mod(G_Tiff_Bothnm_Crop,x_crop_Xnm,y_crop_Xnm);
-cropped_im_B_Xnm = AreaSelection_Circle_Mod(B_Tiff_Bothnm_Crop,x_crop_Xnm,y_crop_Xnm);
+[cropped_im_R_0nm_out,x_crop_0nm_out,y_crop_0nm_out] = AreaSelection_Circle_SiOut(R_Tiff_Bothnm_Crop);
+cropped_im_G_0nm_out = AreaSelection_Circle_Mod(G_Tiff_Bothnm_Crop,x_crop_0nm_out,y_crop_0nm_out);
+cropped_im_B_0nm_out = AreaSelection_Circle_Mod(B_Tiff_Bothnm_Crop,x_crop_0nm_out,y_crop_0nm_out);
 
-R_Cutoff_Value = (max(max(cropped_im_R_Xnm))+max(max(R_Tiff_Bothnm_Crop)))/2;
-G_Cutoff_Value = (max(max(cropped_im_G_Xnm))+max(max(G_Tiff_Bothnm_Crop)))/2;
-B_Cutoff_Value = (max(max(cropped_im_B_Xnm))+max(max(B_Tiff_Bothnm_Crop)))/2;
+[cropped_im_R_0nm_in,x_crop_0nm_in,y_crop_0nm_in] = AreaSelection_Circle_SiIn(R_Tiff_Bothnm_Crop,x_crop_0nm_out,y_crop_0nm_out);
+cropped_im_G_0nm_in = AreaSelection_Circle_Mod(G_Tiff_Bothnm_Crop,x_crop_0nm_in,y_crop_0nm_in);
+cropped_im_B_0nm_in = AreaSelection_Circle_Mod(B_Tiff_Bothnm_Crop,x_crop_0nm_in,y_crop_0nm_in);
+
+[rows_0nm_out,cols_0nm_out] = size(cropped_im_R_0nm_out)
+[rows_0nm_in,cols_0nm_in] = size(cropped_im_R_0nm_in)
+rowdiff = rows_0nm_out(1) - rows_0nm_in(1);
+coldiff = cols_0nm_out(1) - cols_0nm_in(1);
+threshold_rows = round((rowdiff/2)+1)
+threshold_cols = round((coldiff/2)+1)
+%%
+bigger_120nm_R(threshold:rows_0nm_in+threshold,threshold:rows_0nm_in+threshold) = cropped_im_R_0nm_in(1:rows_0nm_in+1,1:rows_0nm_in+1)   
+%FIX HERE
+%%
+
+%%Different sizes! try automatically drawing the inner circle after drawing
+%%outer circle.
+
+
+
+% cropped_Ring_R = 
+
+
+%%
+
+% R_Cutoff_Value = (max(max(cropped_im_R_Xnm))+max(max(R_Tiff_Bothnm_Crop)))/2;
+% G_Cutoff_Value = (max(max(cropped_im_G_Xnm))+max(max(G_Tiff_Bothnm_Crop)))/2;
+% B_Cutoff_Value = (max(max(cropped_im_B_Xnm))+max(max(B_Tiff_Bothnm_Crop)))/2;
 
 R_Cutoff_Mask_0nm = uint16(R_Tiff_Bothnm_Crop > R_Cutoff_Value);
 G_Cutoff_Mask_0nm = uint16(G_Tiff_Bothnm_Crop > G_Cutoff_Value);
