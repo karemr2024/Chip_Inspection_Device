@@ -33,6 +33,12 @@ angles = linspace(0, 2*pi, 10000);
 x = cos(angles) * h.Radius + h.Center(1);
 y = sin(angles) * h.Radius + h.Center(2);
 
+if x > y
+   x = y;
+elseif y > x
+   y = x;
+end
+
 % Get a mask of the circle
 mask = poly2mask(x, y, rows, columns);
 

@@ -1,4 +1,4 @@
-function [maskedImage,x,y,point1] = AreaSelection_Circle_SiOut(originalImage)
+function [maskedImage,x,y,point1] = AreaSelection_Circle_SiO(originalImage)
 
 % Demo to have the user click and draw a circle over an image, then blacken outside the circle and crop out the circular portion into a new image.
 clc;% Clear the command window.
@@ -17,7 +17,7 @@ axis('on', 'image');
 g = gcf;
 g.WindowState = 'maximized';
 
-uiwait(helpdlg('Select outer circle of ROI for only Silicon.'));
+uiwait(helpdlg('Select ROI for Silicon Oxide.'));
 
 h.Radius = 0;
 while h.Radius == 0
