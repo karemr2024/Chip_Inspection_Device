@@ -30,16 +30,18 @@ nrSiO = (sqrt(nsqrSiO)+conj(sqrt(nsqrSiO)))/2; %SiO2 refractive index to input i
 Z1 = [];
 Gamma1 = [];
 
-for i = 1:numel(lambda)
-for j = 1:numel(L)
-[Gamma1(i,j),Z1(i,j)] = multidiels([1;nrSiO(1,i);nrSi(1,i)],L(j).*nrSiO(1,i),lambda(1,i));
-end
-end
-
-
+% for i = 1:numel(lambda)
+% for j = 1:numel(L)
+% [Gamma1(i,j),Z1(i,j)] = multidiels([1;nrSiO(1,i);nrSi(1,i)],L(j).*nrSiO(1,i),lambda(1,i));
+% end
+% end
 
 [MLam, MThicc] = meshgrid(lambda,L);
 Gamma = conj(Gamma1).*Gamma1; %Multiply Gamma with conjugate to get rid of imaginary component
+%
+Gamma_Si = abs((1 - nsqrSi)./ (1 + nsqrSi)).^2 ;
+
+%%
 
 load("spectra.mat",'spectra') %Load spectrum data
 blue = spectra{1,1}; %LED Spectrum for B
@@ -55,7 +57,7 @@ redspectrum = red(:,2)*100;
 redspectrum = redspectrum(251:1620);
 redspectrum = interp(redspectrum,2);%Red Spectrum from 400 to 680 nm
 
-for i = 1:2740
+for i = 1:numel(redspectrum)
 Ref_spec_red = Gamma(i,valtoindex_L(0))'.*redspectrum; %Reflectivity spectrum for red at 0 nm (R_r) 
 Ref_spec_green = Gamma(i,valtoindex_L(0))'.*greenspectrum; %Reflectivity spectrum for green at 0 nm (R_g) 
 Ref_spec_blue = Gamma(i,valtoindex_L(0))'.*bluespectrum; %Reflectivity spectrum for blue at 0 nm (R_b)
@@ -106,5 +108,5 @@ nsqrSiO =sellmeier(B_SiO,C_SiO,lambda); %Find refractive index values for SiO2 a
 nrSi = (sqrt(nsqrSi)+conj(sqrt(nsqrSi)))/2; %Si refractive index to input in multidiels
 nrSiO = (sqrt(nsqrSiO)+conj(sqrt(nsqrSiO)))/2; %SiO2 refractive index to input in multidiels
 
-clearvars -except Gamma L lambda cw_b cw_g cw_r Ref_at_0nm_R Ref_at_0nm_G Ref_at_0nm_B Ref_at_120nm_R Ref_at_120nm_G Ref_at_120nm_B B_Si B_SiO C_Si C_SiO nsqrSi nsqrSiO nrSi nrSiO 
+clearvars -except Gamma Gamma_Si L lambda cw_b cw_g cw_r Ref_at_0nm_R Ref_at_0nm_G Ref_at_0nm_B Ref_at_120nm_R Ref_at_120nm_G Ref_at_120nm_B B_Si B_SiO C_Si C_SiO nsqrSi nsqrSiO nrSi nrSiO 
 save("Imaging_Data.mat")

@@ -85,11 +85,11 @@ Ref_at_120nm_G = Gamma(valtoindex_lambda(cw_g),valtoindex_L(0.12));
 Ref_at_120nm_B = Gamma(valtoindex_lambda(cw_b),valtoindex_L(0.12));
 
 
-[R_Tiff_0nm_Crop,x_crop_0nm,y_crop_0nm] = AreaSelection_Circle(R_Tiff_0nm);
+[R_Tiff_0nm_Crop,x_crop_0nm,y_crop_0nm] = AreaSelection(R_Tiff_0nm);
 G_Tiff_0nm_Crop = G_Tiff_0nm(x_crop_0nm:x_crop_0nm+63,y_crop_0nm:y_crop_0nm+63);
 B_Tiff_0nm_Crop = B_Tiff_0nm(x_crop_0nm:x_crop_0nm+63,y_crop_0nm:y_crop_0nm+63);
 
-[R_Tiff_Xnm_Crop,x_crop_Xnm,y_crop_Xnm] = AreaSelection_Circle(R_Tiff_Xnm);
+[R_Tiff_Xnm_Crop,x_crop_Xnm,y_crop_Xnm] = AreaSelection(R_Tiff_Xnm);
 G_Tiff_Xnm_Crop = G_Tiff_Xnm(x_crop_Xnm:x_crop_Xnm+63,y_crop_Xnm:y_crop_Xnm+63);
 B_Tiff_Xnm_Crop = B_Tiff_Xnm(x_crop_Xnm:x_crop_Xnm+63,y_crop_Xnm:y_crop_Xnm+63);
 

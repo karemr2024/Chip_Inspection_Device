@@ -1,4 +1,7 @@
-function [maskedImage,x,y,point1] = AreaSelection_Circle_SiO(originalImage)
+% clearvars -except cropped_im_R_0nm_in
+function [maskedImage,x,y,point1] = AreaSelection_Circle_Ox(originalImage)
+
+%originalImage = cropped_im_R_0nm_in
 
 % Demo to have the user click and draw a circle over an image, then blacken outside the circle and crop out the circular portion into a new image.
 clc;% Clear the command window.
@@ -33,11 +36,11 @@ y = sin(angles) * h.Radius + h.Center(2);
 
 % Get a mask of the circle
 
-if x > y
-   x = y
-elseif y > x
-   y = x
-end
+% if x > y
+%    x = y
+% elseif y > x
+%    y = x
+% end
 
 mask = poly2mask(x, y, rows, columns);
 
@@ -48,5 +51,5 @@ mask = poly2mask(x, y, rows, columns);
 % Crop the image to the bounding box.
 props = regionprops(mask, 'BoundingBox');
 maskedImage = imcrop(maskedImage, props.BoundingBox);
-
-end
+% 
+% end

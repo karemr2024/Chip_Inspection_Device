@@ -66,9 +66,9 @@ theoric_L = (input('Enter the thickness of your chip in nm (if unknown, enter UN
 
 load("Imaging_Data.mat")
 
-R_Mask = uint16(repmat([1 0 ; 0 0],540,720)); % Create RGB pixel masks according 
-G_Mask = uint16(repmat([0 1 ; 1 0],540,720)); % to camera sensor superpixel filter 
-B_Mask = uint16(repmat([0 0 ; 0 1],540,720)); % configuration 'rggb' and resolution 1080x1440.
+R_Mask = uint16(repmat([1 0 ; 0 0],550,800)); % Create RGB pixel masks according 
+G_Mask = uint16(repmat([0 1 ; 1 0],550,800)); % to camera sensor superpixel filter 
+B_Mask = uint16(repmat([0 0 ; 0 1],550,800)); % configuration 'rggb' and resolution 1080x1440.
 
 %For 0 nm image
 
