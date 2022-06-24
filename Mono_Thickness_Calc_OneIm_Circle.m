@@ -74,21 +74,21 @@ nonzeros_G_Xnm = nonzeros(cropped_im_G_Xnm);
 nonzeros_B_Xnm = nonzeros(cropped_im_B_Xnm);
 %%
 if numel(nonzeros_R_0nm) > numel(nonzeros_R_Xnm)
-    nonzeros_R_0nm = nonzeros_R_0nm(1:numel(nonzeros_R_Xnm))
+    nonzeros_R_0nm = nonzeros_R_0nm(1:numel(nonzeros_R_Xnm));
 elseif numel(nonzeros_R_0nm) < numel(nonzeros_R_Xnm)
-    nonzeros_R_Xnm = nonzeros_R_Xnm(1:numel(nonzeros_R_0nm)) 
+    nonzeros_R_Xnm = nonzeros_R_Xnm(1:numel(nonzeros_R_0nm)); 
 end
 
 if numel(nonzeros_G_0nm) > numel(nonzeros_G_Xnm)
-    nonzeros_G_0nm = nonzeros_G_0nm(1:numel(nonzeros_G_Xnm))
+    nonzeros_G_0nm = nonzeros_G_0nm(1:numel(nonzeros_G_Xnm));
 elseif numel(nonzeros_G_0nm) < numel(nonzeros_G_Xnm)
-    nonzeros_G_Xnm = nonzeros_G_Xnm(1:numel(nonzeros_G_0nm)) 
+    nonzeros_G_Xnm = nonzeros_G_Xnm(1:numel(nonzeros_G_0nm)); 
 end
 
 if numel(nonzeros_B_0nm) > numel(nonzeros_B_Xnm)
-    nonzeros_B_0nm = nonzeros_B_0nm(1:numel(nonzeros_B_Xnm))
+    nonzeros_B_0nm = nonzeros_B_0nm(1:numel(nonzeros_B_Xnm));
 elseif numel(nonzeros_B_0nm) < numel(nonzeros_B_Xnm)
-    nonzeros_B_Xnm = nonzeros_B_Xnm(1:numel(nonzeros_B_0nm)) 
+    nonzeros_B_Xnm = nonzeros_B_Xnm(1:numel(nonzeros_B_0nm)); 
 end
 
 
@@ -121,7 +121,7 @@ load("Gamma_Si.mat")
 load("Gamma_R.mat")
 load("Gamma_G.mat")
 load("Gamma_B.mat")
-
+%%
 figure(15)
 
 hold on
@@ -177,7 +177,6 @@ end
 %%
 %CODE TO SHOW R G B RINGS
 %%
-close all
 figure(31)
 imagesc(thin_ring_R)
 colormap
@@ -194,8 +193,9 @@ figure(33)
 imagesc(thin_ring_B)
 colormap
 colorbar
-caxis([min(min(nonzeros(thin_ring_B))) max(max(nonzeros(thin_ring_B)))]);
+caxis([double(min(min(nonzeros(thin_ring_B)))) double(max(max(nonzeros(thin_ring_B))))]);
 title('B Ring ROI')
+ans = 1;    
 %%
 
 
