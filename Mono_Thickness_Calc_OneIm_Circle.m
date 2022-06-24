@@ -128,11 +128,13 @@ hold on
 plot(lambda,Gamma_B(:,valtoindex_L(abs(esti_L_lsqr))),'r--','LineWidth',2)%Estimated nm thickness
 plot(lambda,Gamma_G(:,valtoindex_L(abs(esti_L_lsqr))),'g--','LineWidth',2)
 plot(lambda,Gamma_R(:,valtoindex_L(abs(esti_L_lsqr))),'b--','LineWidth',2)
+% plot(lambda,Gamma(:,valtoindex_L(abs(esti_L_lsqr))),'b--','LineWidth',2)
 
 plot(lambda,Gamma_B(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)
 plot(lambda,Gamma_G(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)
 plot(lambda,Gamma_R(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)%120 nm thickness
-
+% plot(lambda,Gamma(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)
+% 
 plot(cw_r,MeanRefRed_at_XnmO2,'r.','MarkerSize',30)
 plot(cw_g,MeanRefGre_at_XnmO2,'g.','MarkerSize',30)
 plot(cw_b,MeanRefBlu_at_XnmO2,'b.','MarkerSize',30)
