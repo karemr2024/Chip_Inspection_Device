@@ -6,10 +6,9 @@ L = L(1:2691);
 lambda = lambda(1:2691);
 Osram_Led_Spec_NoInt = table2array(readtable("LED_Engin_Spectrum_Data.csv"));
 
-for i=1:22
+for i=1:23
 Osram_Led_Spec(:,i) = interp(Osram_Led_Spec_NoInt(:,i),3); 
 end
-
 
 Osram_lambda = Osram_Led_Spec(:,1); %Wavelength from 350nm to 1100 nm
 
@@ -36,6 +35,8 @@ Spec_Red_633nm = Osram_Led_Spec(:,19)/(max(max(Osram_Led_Spec(:,19))));
 Spec_DeepRed_660nm = Osram_Led_Spec(:,20)/(max(max(Osram_Led_Spec(:,20))));
 Spec_FarRed_740nm = Osram_Led_Spec(:,21)/(max(max(Osram_Led_Spec(:,21))));
 Spec_InfraRed_850nm = Osram_Led_Spec(:,22)/(max(max(Osram_Led_Spec(:,22))));
+Spec_DeepInfraRed_940nm = Osram_Led_Spec(:,23)/(max(max(Osram_Led_Spec(:,23))));
+
 
 figure(1)
 hold on
@@ -101,6 +102,7 @@ Ref_Spec_Red_633nm = Gamma(i,valtoindex_L(0))'.*Spec_Red_633nm;
 Ref_Spec_DeepRed_660nm = Gamma(i,valtoindex_L(0))'.*Spec_DeepRed_660nm;
 Ref_Spec_FarRed_740nm = Gamma(i,valtoindex_L(0))'.*Spec_FarRed_740nm; 
 Ref_Spec_InfraRed_850nm = Gamma(i,valtoindex_L(0))'.*Spec_InfraRed_850nm; 
+Ref_Spec_DeepInfraRed_940nm = Gamma(i,valtoindex_L(0))'.*Spec_DeepInfraRed_940nm; 
 end 
 
 Ref_Spec_WW_2200K = Ref_Spec_WW_2200K(1:2691);
@@ -124,6 +126,7 @@ Ref_Spec_Red_633nm = Ref_Spec_Red_633nm(1:2691);
 Ref_Spec_DeepRed_660nm = Ref_Spec_DeepRed_660nm(1:2691);
 Ref_Spec_FarRed_740nm = Ref_Spec_FarRed_740nm(1:2691);
 Ref_Spec_InfraRed_850nm = Ref_Spec_InfraRed_850nm(1:2691);
+Ref_Spec_DeepInfraRed_940nm = Ref_Spec_DeepInfraRed_940nm(1:2691);
 
 %%
 
@@ -148,6 +151,7 @@ I_ref_Red_633nm = [];
 I_ref_DeepRed_660nm = [];
 I_ref_FarRed_740nm = [];
 I_ref_InfraRed_850nm = [];
+I_ref_DeepInfraRed_940nm = [];
 
 %%
 
@@ -176,6 +180,8 @@ for i=1:2691
     I_ref_DeepRed_660nm(:,i) = sum(Gamma(:,i).*Ref_Spec_DeepRed_660nm)./100;
     I_ref_FarRed_740nm(:,i) = sum(Gamma(:,i).*Ref_Spec_FarRed_740nm)./100;
     I_ref_InfraRed_850nm(:,i) = sum(Gamma(:,i).*Ref_Spec_InfraRed_850nm./100);
+    I_ref_DeepInfraRed_940nm(:,i) = sum(Gamma(:,i).*Ref_Spec_DeepInfraRed_940nm./100);
+    %% 
 end 
 
 %%
@@ -199,6 +205,7 @@ plot(L,I_ref_Red_633nm,'LineWidth',2,'Color','#FF2B2B')
 plot(L,I_ref_DeepRed_660nm,'LineWidth',2,'Color','#E90000')
 plot(L,I_ref_FarRed_740nm,'LineWidth',2,'Color','#A60000')
 plot(L,I_ref_InfraRed_850nm,'LineWidth',2,'Color','#5B1B1B')
+plot(L,I_ref_DeepInfraRed_940nm,'LineWidth',2,'Color','#5B1B1B')
 title('Reflected Intensity (I_O_u_t) for Colored LEDs from 0 nm to 300 nm')
 xlabel('L (\mum)','FontSize',16);
 ylim([0 0.16])
@@ -223,29 +230,29 @@ legend('Warm White 2200K','Warm White 3000K','Neutral White 4000K','Cool White 5
 hold off
 
 
-figure(5)
-hold on
-plot(L,I_ref_Red_633nm,'r','LineWidth',2)
-plot(L,I_ref_DentalBlue_460nm,'b','LineWidth',2)
-plot(L,I_ref_Green_517nm,'g','LineWidth',2)
-xline(0.12)
-title('Red, Green, and Blue (Current LEDs)')
-legend('Red (633 nm)','Dental Blue (460 nm)','Green (517 nm)','location','northeast')
+% figure(5)
+% hold on
+% plot(L,I_ref_Red_633nm,'r','LineWidth',2)
+% plot(L,I_ref_DentalBlue_460nm,'b','LineWidth',2)
+% plot(L,I_ref_Green_517nm,'g','LineWidth',2)
+% xline(0.12)
+% title('Red, Green, and Blue (Current LEDs)')
+% legend('Red (633 nm)','Dental Blue (460 nm)','Green (517 nm)','location','northeast')
 
-figure(6)
-hold on
-plot(L,I_ref_Violet_405nm,'LineWidth',2,'Color','#9D00DC')
-plot(L,I_ref_FarRed_740nm,'LineWidth',2,'Color','#A60000')
-plot(L,I_ref_InfraRed_850nm,'LineWidth',2,'Color','#5B1B1B')
-xline(0.12)
-title('Violet, Far Red, and Infra Red (Good at 120 nm)')
-legend('Violet (405 nm)','Far Red (740 nm)','Infra Red (850 nm)','location','northeast')
-
+% figure(6)
+% hold on
+% plot(L,I_ref_Violet_405nm,'LineWidth',2,'Color','#9D00DC')
+% plot(L,I_ref_FarRed_740nm,'LineWidth',2,'Color','#A60000')
+% plot(L,I_ref_InfraRed_850nm,'LineWidth',2,'Color','#5B1B1B')
+% xline(0.12)
+% title('Violet, Far Red, and Infra Red (Good at 120 nm)')
+% legend('Violet (405 nm)','Far Red (740 nm)','Infra Red (850 nm)','location','northeast')
+% 
 figure(7)
 hold on
 plot(L,I_ref_DentalBlue_460nm,'b','LineWidth',2)
-plot(L,I_ref_FarRed_740nm,'LineWidth',2,'Color','#A60000')
-plot(L,I_ref_InfraRed_850nm,'LineWidth',2,'Color','#5B1B1B')
+plot(L,I_ref_Red_633nm,'LineWidth',2,'Color','#FF2B2B')
+plot(L,I_ref_DeepInfraRed_940nm,'LineWidth',2,'Color','#5B1B1B')
 xline(0.12)
 title('dental blue, Far Red, and Infra Red (Good at 120 nm)')
 legend('Dental Blue (460 nm)','Far Red (740 nm)','Infra Red (850 nm)','location','northeast')

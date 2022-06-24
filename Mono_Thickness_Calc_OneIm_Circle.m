@@ -1,4 +1,4 @@
-clc; close all; clearvars;
+clc; close all; clearvars -except Gamma_Si;
 
 %Below are prompts for user to enter unknown SiO2 nm (120 nm for now)
 %and 0 nm (Si) chip images.
@@ -28,7 +28,7 @@ else
 end
 
 %%
-clearvars -except B_Tiff G_Tiff R_Tiff
+clearvars -except B_Tiff G_Tiff R_Tiff 
 
 prompt_NorS = input('Do you know the thickness of your chip? (Y/N)\n', "s");
 if prompt_NorS == 'Y'
@@ -36,7 +36,7 @@ theoric_L = (input('Enter the thickness of your chip in nm: \n'))/1000;
 else
 theoric_L = 'UNKNOWN';
 end
-%
+%%
 load("Imaging_Data.mat")
 
 RGB_Combo = R_Tiff + G_Tiff + B_Tiff; %Add R,G,B Channels to create a RGB combo image
@@ -49,68 +49,20 @@ B_Tiff_Bothnm_Crop = AreaSelection_Circle_Mod(B_Tiff,x_crop_Bothnm,y_crop_Bothnm
 cropped_im_G_0nm_out = AreaSelection_Circle_Mod(G_Tiff_Bothnm_Crop,x_crop_0nm_out,y_crop_0nm_out);
 cropped_im_B_0nm_out = AreaSelection_Circle_Mod(B_Tiff_Bothnm_Crop,x_crop_0nm_out,y_crop_0nm_out);
 
-[cropped_im_R_0nm_in,x_crop_0nm_in,y_crop_0nm_in] = AreaSelection_Circle_SiIn(R_Tiff_Bothnm_Crop,x_crop_0nm_out,y_crop_0nm_out);
-cropped_im_G_0nm_in = AreaSelection_Circle_Mod(G_Tiff_Bothnm_Crop,x_crop_0nm_in,y_crop_0nm_in);
-cropped_im_B_0nm_in = AreaSelection_Circle_Mod(B_Tiff_Bothnm_Crop,x_crop_0nm_in,y_crop_0nm_in);
+[cropped_im_R_0nm_in,x_crop_0nm_in,y_crop_0nm_in] = AreaSelection_Circle_SiIn(cropped_im_R_0nm_out,x_crop_0nm_out,y_crop_0nm_out);
+cropped_im_G_0nm_in = AreaSelection_Circle_Mod_SiIn(cropped_im_G_0nm_out,x_crop_0nm_in,y_crop_0nm_in);
+cropped_im_B_0nm_in = AreaSelection_Circle_Mod_SiIn(cropped_im_B_0nm_out,x_crop_0nm_in,y_crop_0nm_in);
 
-[cropped_im_R_Xnm,x_crop_Xnm,y_crop_Xnm] = AreaSelection_Circle_SiO(R_Tiff_Bothnm_Crop);
-cropped_im_G_Xnm = AreaSelection_Circle_Mod(G_Tiff_Bothnm_Crop,x_crop_Xnm,y_crop_Xnm);
-cropped_im_B_Xnm = AreaSelection_Circle_Mod(B_Tiff_Bothnm_Crop,x_crop_Xnm,y_crop_Xnm);
+[cropped_im_R_Xnm,x_crop_Xnm,y_crop_Xnm] = AreaSelection_Circle_Ox(cropped_im_R_0nm_in);
+cropped_im_G_Xnm = AreaSelection_Circle_Mod(cropped_im_G_0nm_in,x_crop_Xnm,y_crop_Xnm);
+cropped_im_B_Xnm = AreaSelection_Circle_Mod(cropped_im_B_0nm_in,x_crop_Xnm,y_crop_Xnm);
 
-[rows_0nm_out,cols_0nm_out] = size(cropped_im_R_0nm_out)
-[rows_0nm_in,cols_0nm_in] = size(cropped_im_R_0nm_in)
-%
-rowdiff = rows_0nm_out - rows_0nm_in;
-coldiff = cols_0nm_out - cols_0nm_in;
-threshold_rows = round((rowdiff/2))
-threshold_cols = round((coldiff/2))
- %
-bigger_120nm_R(threshold_rows:rows_0nm_in+threshold_rows-1,threshold_rows:cols_0nm_in+threshold_rows-1) = cropped_im_R_0nm_in(1:rows_0nm_in,1:cols_0nm_in)  
-bigger_120nm_R(rows_0nm_in+threshold_rows:rows_0nm_out,rows_0nm_in+threshold_rows:rows_0nm_out) = 0
 
-bigger_120nm_G(threshold_rows:rows_0nm_in+threshold_rows-1,threshold_rows:cols_0nm_in+threshold_rows-1) = cropped_im_G_0nm_in(1:rows_0nm_in,1:cols_0nm_in)  
-bigger_120nm_G(rows_0nm_in+threshold_rows:rows_0nm_out,rows_0nm_in+threshold_rows:rows_0nm_out) = 0
+thin_ring_R = uint16(cropped_im_R_0nm_out) - uint16(cropped_im_R_0nm_in);
+thin_ring_G = uint16(cropped_im_G_0nm_out) - uint16(cropped_im_G_0nm_in);
+thin_ring_B = uint16(cropped_im_B_0nm_out) - uint16(cropped_im_B_0nm_in);
 
-bigger_120nm_B(threshold_rows:rows_0nm_in+threshold_rows-1,threshold_rows:cols_0nm_in+threshold_rows-1) = cropped_im_B_0nm_in(1:rows_0nm_in,1:cols_0nm_in)  
-bigger_120nm_B(rows_0nm_in+threshold_rows:rows_0nm_out,rows_0nm_in+threshold_rows:rows_0nm_out) = 0
 
-if rows_0nm_in > cols_0nm_in
-    cropped_im_R_0nm_in = cropped_im_R_0nm_in(1:cols_0nm_in,1:cols_0nm_in)
-    cropped_im_G_0nm_in = cropped_im_G_0nm_in(1:cols_0nm_in,1:cols_0nm_in)
-    cropped_im_B_0nm_in = cropped_im_B_0nm_in(1:cols_0nm_in,1:cols_0nm_in)
-elseif rows_0nm_in < cols_0nm_in
-    cropped_im_R_0nm_in = cropped_im_R_0nm_in(1:rows_0nm_in,1:rows_0nm_in)
-    cropped_im_G_0nm_in = cropped_im_G_0nm_in(1:rows_0nm_in,1:rows_0nm_in)
-    cropped_im_B_0nm_in = cropped_im_B_0nm_in(1:rows_0nm_in,1:rows_0nm_in)
-end
-
-if rows_0nm_out > cols_0nm_out
-    cropped_im_R_0nm_out = cropped_im_R_0nm_out(1:cols_0nm_out,1:cols_0nm_out)
-    cropped_im_G_0nm_out = cropped_im_G_0nm_out(1:cols_0nm_out,1:cols_0nm_out)
-    cropped_im_B_0nm_out = cropped_im_B_0nm_out(1:cols_0nm_out,1:cols_0nm_out)
-elseif rows_0nm_out < cols_0nm_out
-    cropped_im_R_0nm_out = cropped_im_R_0nm_out(1:rows_0nm_out,1:rows_0nm_out)
-    cropped_im_G_0nm_out = cropped_im_G_0nm_out(1:rows_0nm_out,1:rows_0nm_out)
-    cropped_im_B_0nm_out = cropped_im_B_0nm_out(1:rows_0nm_out,1:rows_0nm_out)
-end
-
-thin_ring_R = uint16(double(cropped_im_R_0nm_out) - double(bigger_120nm_R));
-thin_ring_G = uint16(double(cropped_im_G_0nm_out) - double(bigger_120nm_G));
-thin_ring_B = uint16(double(cropped_im_B_0nm_out) - double(bigger_120nm_B));
-%
-R_Cutoff = 20000 %DO NOT HARD CODE
-G_Cutoff = 9500  %DO NOT HARD CODE
-B_Cutoff = 20000 %DO NOT HARD CODE
-
-%
-thin_ring_R(thin_ring_R<R_Cutoff) = 0;
-thin_ring_G(thin_ring_G<G_Cutoff) = 0; 
-thin_ring_B(thin_ring_B<B_Cutoff) = 0; 
-% nonzeros_ring_R = nonzeros(thin_ring_R)
-average_intensity_R = mean(nonzeros(thin_ring_R));
-average_intensity_G = mean(nonzeros(thin_ring_G));
-average_intensity_B = mean(nonzeros(thin_ring_B));
-%FIX HERE
 %%
 
 nonzeros_R_0nm = nonzeros(thin_ring_R);
@@ -122,105 +74,26 @@ nonzeros_G_Xnm = nonzeros(cropped_im_G_Xnm);
 nonzeros_B_Xnm = nonzeros(cropped_im_B_Xnm);
 %%
 if numel(nonzeros_R_0nm) > numel(nonzeros_R_Xnm)
-    nonzeros_R_0nm = nonzeros_R_0nm(1:numel(nonzeros_R_Xnm))
+    nonzeros_R_0nm = nonzeros_R_0nm(1:numel(nonzeros_R_Xnm));
 elseif numel(nonzeros_R_0nm) < numel(nonzeros_R_Xnm)
-    nonzeros_R_Xnm = nonzeros_R_Xnm(1:numel(nonzeros_R_0nm)) 
+    nonzeros_R_Xnm = nonzeros_R_Xnm(1:numel(nonzeros_R_0nm)); 
 end
 
 if numel(nonzeros_G_0nm) > numel(nonzeros_G_Xnm)
-    nonzeros_G_0nm = nonzeros_G_0nm(1:numel(nonzeros_G_Xnm))
+    nonzeros_G_0nm = nonzeros_G_0nm(1:numel(nonzeros_G_Xnm));
 elseif numel(nonzeros_G_0nm) < numel(nonzeros_G_Xnm)
-    nonzeros_G_Xnm = nonzeros_G_Xnm(1:numel(nonzeros_G_0nm)) 
+    nonzeros_G_Xnm = nonzeros_G_Xnm(1:numel(nonzeros_G_0nm)); 
 end
 
 if numel(nonzeros_B_0nm) > numel(nonzeros_B_Xnm)
-    nonzeros_B_0nm = nonzeros_B_0nm(1:numel(nonzeros_B_Xnm))
+    nonzeros_B_0nm = nonzeros_B_0nm(1:numel(nonzeros_B_Xnm));
 elseif numel(nonzeros_B_0nm) < numel(nonzeros_B_Xnm)
-    nonzeros_B_Xnm = nonzeros_B_Xnm(1:numel(nonzeros_B_0nm)) 
+    nonzeros_B_Xnm = nonzeros_B_Xnm(1:numel(nonzeros_B_0nm)); 
 end
 
 
-%%
-% close all
-% figure(31)
-% imagesc(thin_ring_R)
-% figure(32)
-% imagesc(thin_ring_G)
-% figure(33)
-% imagesc(thin_ring_B)
-
-%%
-%%Different sizes! try automatically drawing the inner circle after drawing
-%%outer circle.
-
-
-
-% cropped_Ring_R = 
-
-
-%%
-
-% R_Cutoff_Value = (max(max(cropped_im_R_Xnm))+max(max(R_Tiff_Bothnm_Crop)))/2;
-% G_Cutoff_Value = (max(max(cropped_im_G_Xnm))+max(max(G_Tiff_Bothnm_Crop)))/2;
-% B_Cutoff_Value = (max(max(cropped_im_B_Xnm))+max(max(B_Tiff_Bothnm_Crop)))/2;
-
-% R_Cutoff_Mask_0nm = uint16(R_Tiff_Bothnm_Crop > R_Cutoff_Value);
-% G_Cutoff_Mask_0nm = uint16(G_Tiff_Bothnm_Crop > G_Cutoff_Value);
-% B_Cutoff_Mask_0nm = uint16(B_Tiff_Bothnm_Crop > B_Cutoff_Value);
-% 
-% R_Cutoff_Mask_Xnm = uint16(R_Tiff_Bothnm_Crop < R_Cutoff_Value);
-% G_Cutoff_Mask_Xnm = uint16(G_Tiff_Bothnm_Crop < G_Cutoff_Value);
-% B_Cutoff_Mask_Xnm = uint16(B_Tiff_Bothnm_Crop < B_Cutoff_Value);
-% 
-% R_Tiff_0nm_Crop = R_Tiff_Bothnm_Crop.*R_Cutoff_Mask_0nm;
-% G_Tiff_0nm_Crop = G_Tiff_Bothnm_Crop.*G_Cutoff_Mask_0nm;
-% B_Tiff_0nm_Crop = B_Tiff_Bothnm_Crop.*B_Cutoff_Mask_0nm;
-% 
-% R_Tiff_Xnm_Crop = R_Tiff_Bothnm_Crop.*R_Cutoff_Mask_Xnm;
-% G_Tiff_Xnm_Crop = G_Tiff_Bothnm_Crop.*G_Cutoff_Mask_Xnm;
-% B_Tiff_Xnm_Crop = B_Tiff_Bothnm_Crop.*B_Cutoff_Mask_Xnm;
-
-
-
-% numel_R_Tiff_Xnm_Crop = sum(sum(R_Tiff_Xnm_Crop>0));
-% numel_G_Tiff_Xnm_Crop = sum(sum(G_Tiff_Xnm_Crop>0));
-% numel_B_Tiff_Xnm_Crop = sum(sum(B_Tiff_Xnm_Crop>0));
-% 
-% numel_R_Tiff_0nm_Crop = sum(sum(R_Tiff_0nm_Crop>0));
-% numel_G_Tiff_0nm_Crop = sum(sum(G_Tiff_0nm_Crop>0));
-% numel_B_Tiff_0nm_Crop = sum(sum(B_Tiff_0nm_Crop>0));
-% 
-% [rowsR, colsR, ~] = size(R_Tiff_Bothnm_Crop);
-% [rowsG, colsG, ~] = size(G_Tiff_Bothnm_Crop);
-% [rowsB, colsB, ~] = size(B_Tiff_Bothnm_Crop);
-% 
-% nonzeros_R_0nm = nonzeros(R_Tiff_0nm_Crop); 
-% nonzeros_R_Xnm = nonzeros(cropped_im_R_Xnm); 
-% nonzeros_G_0nm = nonzeros(G_Tiff_0nm_Crop); 
-% nonzeros_G_Xnm = nonzeros(cropped_im_G_Xnm); 
-% nonzeros_B_0nm = nonzeros(B_Tiff_0nm_Crop);
-% nonzeros_B_Xnm = nonzeros(cropped_im_B_Xnm); 
-% 
-% if numel(nonzeros_R_0nm) > numel(nonzeros_R_Xnm)
-%     nonzeros_R_0nm = nonzeros_R_0nm(1:numel(nonzeros_R_Xnm))
-% elseif numel(nonzeros_R_0nm) < numel(nonzeros_R_Xnm)
-%     nonzeros_R_Xnm = nonzeros_R_Xnm(1:numel(nonzeros_R_0nm)) 
-% end
-% 
-% if numel(nonzeros_G_0nm) > numel(nonzeros_G_Xnm)
-%     nonzeros_G_0nm = nonzeros_G_0nm(1:numel(nonzeros_G_Xnm))
-% elseif numel(nonzeros_G_0nm) < numel(nonzeros_G_Xnm)
-%     nonzeros_G_Xnm = nonzeros_G_Xnm(1:numel(nonzeros_G_0nm)) 
-% end
-% 
-% if numel(nonzeros_B_0nm) > numel(nonzeros_B_Xnm)
-%     nonzeros_B_0nm = nonzeros_B_0nm(1:numel(nonzeros_B_Xnm))
-% elseif numel(nonzeros_B_0nm) < numel(nonzeros_B_Xnm)
-%     nonzeros_B_Xnm = nonzeros_B_Xnm(1:numel(nonzeros_B_0nm)) 
-% end
-
 %Intensity In calculation (calibration) I_in = I_out_Si / Reflectance
-%
+
 I_inR = round(double(nonzeros_R_0nm) ./ Ref_at_0nm_R);
 I_inG = round(double(nonzeros_G_0nm) ./ Ref_at_0nm_G);
 I_inB = round(double(nonzeros_B_0nm) ./ Ref_at_0nm_B);
@@ -243,13 +116,22 @@ MeanRefBlu_at_XnmO2 = mean(mean(RefBlu_at_XnmO2));
 esti_L = reftocurve(MeanRefRed_at_XnmO2,MeanRefGre_at_XnmO2,MeanRefBlu_at_XnmO2);
 esti_L_lsqr = reftocurve_lsqr(MeanRefRed_at_XnmO2,MeanRefGre_at_XnmO2,MeanRefBlu_at_XnmO2);
 %%
+
+load("Gamma_Si.mat")
+load("Gamma_R.mat")
+load("Gamma_G.mat")
+load("Gamma_B.mat")
+%%
 figure(15)
 
-%ADD TITLE AS INPUT FROM USER
-
 hold on
-plot(lambda,Gamma(:,valtoindex_L(abs(esti_L_lsqr))),'m--','LineWidth',2)           %Estimated nm thickness
-plot(lambda,Gamma(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)                       %120 nm thickness
+plot(lambda,Gamma_B(:,valtoindex_L(abs(esti_L_lsqr))),'r--','LineWidth',2)%Estimated nm thickness
+plot(lambda,Gamma_G(:,valtoindex_L(abs(esti_L_lsqr))),'g--','LineWidth',2)
+plot(lambda,Gamma_R(:,valtoindex_L(abs(esti_L_lsqr))),'b--','LineWidth',2)
+
+plot(lambda,Gamma_B(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)
+plot(lambda,Gamma_G(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)
+plot(lambda,Gamma_R(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)%120 nm thickness
 
 plot(cw_r,MeanRefRed_at_XnmO2,'r.','MarkerSize',30)
 plot(cw_g,MeanRefGre_at_XnmO2,'g.','MarkerSize',30)
@@ -262,6 +144,7 @@ ylim([0 1])
 legend1 = sprintf('L = %0.2f nm', 1000*esti_L_lsqr);
 legend2 = sprintf('L = %0.2f nm', 1000*theoric_L);
 legend(legend1, legend2,'Ref at R','Ref at G','Ref at B','location','bestoutside')
+title("Actual Thickness is " + theoric_L*1000 + " nm, Estimated Thickness is " + esti_L_lsqr*1000 + " nm")
 
 if isnumeric(theoric_L)
 percent_error = 100*((abs(esti_L_lsqr-theoric_L))/theoric_L);
@@ -273,38 +156,15 @@ fprintf('Estimated thickness is %f nm \n',esti_L_lsqr*1000)
 disp('Percent Error is not known')
 end
 
+%Thickness mapping
+
+
+
+%%SUPPLEMENTARY IMAGES AND FIGURES
+
 %%
-
-% %CODE TO SHOW AUTOMATICALLY CROPPED OXIDE AND SILICON IMAGES USING CUTOFF VALUE
-
-% UNCOMMENT STARTING HERE
-
-% figure(5)
-% subplot(1,2,1)
-% imshow(R_Tiff_Xnm_Crop) 
-% title('Red Oxide Image after cropping using cutoff value')
-% subplot(1,2,2)
-% imshow(R_Tiff_0nm_Crop)
-% title('Red Silicon Image after cropping using cutoff value')
-% 
-% figure(6)
-% subplot(1,2,1)
-% imshow(G_Tiff_Xnm_Crop) 
-% title('Green Oxide Image after cropping using cutoff value')
-% subplot(1,2,2)
-% imshow(G_Tiff_0nm_Crop)
-% title('Green Silicon Image after cropping using cutoff value')
-% 
-% figure(7)
-% subplot(1,2,1)
-% imshow(B_Tiff_Xnm_Crop)
-% title('Blue Oxide Image after cropping using cutoff value')
-% subplot(1,2,2)
-% imshow(B_Tiff_0nm_Crop)
-% title('Blue Silicon Image after cropping using cutoff value')
-% 
-% %CODE TO SHOW MANUALLY SELECTED OXIDE IMAGES
-% 
+%%CODE TO SHOW MANUALLY SELECTED OXIDE IMAGES
+%%
 % figure(8)
 % imshow(cropped_im_R_Xnm)
 % title('Cropped R Xnm ROI')
@@ -314,7 +174,28 @@ end
 % figure(10)
 % imshow(cropped_im_B_Xnm)
 % title('Cropped B Xnm ROI')
-
+%%
+%CODE TO SHOW R G B RINGS
+%%
+figure(31)
+imagesc(thin_ring_R)
+colormap
+colorbar
+caxis([min(min(nonzeros(thin_ring_R))) max(max(nonzeros(thin_ring_R)))]);
+title('R Ring ROI')
+figure(32)
+imagesc(thin_ring_G)
+colormap
+colorbar
+caxis([min(min(nonzeros(thin_ring_G))) max(max(nonzeros(thin_ring_G)))]);
+title('G Ring ROI')
+figure(33)
+imagesc(thin_ring_B)
+colormap
+colorbar
+caxis([double(min(min(nonzeros(thin_ring_B)))) double(max(max(nonzeros(thin_ring_B))))]);
+title('B Ring ROI')
+ans = 1;    
 %%
 
 
