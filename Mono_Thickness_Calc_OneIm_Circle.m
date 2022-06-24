@@ -3,33 +3,79 @@ clc; close all; clearvars -except Gamma_Si;
 %Below are prompts for user to enter unknown SiO2 nm (120 nm for now)
 %and 0 nm (Si) chip images.
 
-[R_Tiff_Name,R_Tiff_Path] = uigetfile('*.tif','Red Image'); %Import Unknown Thickness: Red Image
-if isequal(R_Tiff_Name,0)
-   disp('User selected Cancel');
-else
-   disp(['User selected ', fullfile(R_Tiff_Name,R_Tiff_Path)]);
-   R_Tiff = imread(strcat(R_Tiff_Path, R_Tiff_Name));
+%UNCOMMENT STARTING HERE
+
+% [R_Tiff_Name,R_Tiff_Path] = uigetfile('*.tif','Red Image'); %Import Unknown Thickness: Red Image
+% if isequal(R_Tiff_Name,0)
+%    disp('User selected Cancel');
+% else
+%    disp(['User selected ', fullfile(R_Tiff_Name,R_Tiff_Path)]);
+%    R_Tiff = imread(strcat(R_Tiff_Path, R_Tiff_Name));
+% end
+% 
+% [G_Tiff_Name,G_Tiff_Path] = uigetfile('*.tif','Green Image'); %Import Unknown Thickness: Green Image
+% if isequal(G_Tiff_Name,0)
+%    disp('User selected Cancel');
+% else
+%    disp(['User selected ', fullfile(G_Tiff_Name,G_Tiff_Path)]);
+%    G_Tiff = imread(strcat(G_Tiff_Path, G_Tiff_Name));
+% end
+% 
+% [B_Tiff_Name,B_Tiff_Path] = uigetfile('*.tif','Blue Image'); %Import Unknown Thickness: Blue Image 
+% if isequal(B_Tiff_Name,0)
+%    disp('User selected Cancel');
+% else
+%    disp(['User selected ', fullfile(B_Tiff_Name,B_Tiff_Path)]);
+%    B_Tiff = imread(strcat(B_Tiff_Path, B_Tiff_Name));
+% end
+
+%UNCOMMENT ENDS
+
+tiff_info_R = imfinfo('StackR.tif'); % return tiff structure, one element per image
+tiff_stack_R = imread('StackR.tif', 1) ; % read in first image
+tiff_info_G = imfinfo('StackG.tif'); % return tiff structure, one element per image
+tiff_stack_G = imread('StackG.tif', 1) ; % read in first image
+tiff_info_B = imfinfo('StackG.tif'); % return tiff structure, one element per image
+tiff_stack_B = imread('StackG.tif', 1) ; % read in first image
+%concatenate each successive tiff to tiff_stack
+for i = 2 : size(tiff_info_R, 1)
+    temp_tiff_R = imread('StackR.tif', i);
+    tiff_stack_R = cat(3 , tiff_stack_R, temp_tiff_R);
+    temp_tiff_G = imread('StackG.tif', i);
+    tiff_stack_G = cat(3 , tiff_stack_G, temp_tiff_G);
+    temp_tiff_B = imread('StackB.tif', i);
+    tiff_stack_B = cat(3 , tiff_stack_B, temp_tiff_B);
 end
 
-[G_Tiff_Name,G_Tiff_Path] = uigetfile('*.tif','Green Image'); %Import Unknown Thickness: Green Image
-if isequal(G_Tiff_Name,0)
-   disp('User selected Cancel');
-else
-   disp(['User selected ', fullfile(G_Tiff_Name,G_Tiff_Path)]);
-   G_Tiff = imread(strcat(G_Tiff_Path, G_Tiff_Name));
-end
+tiff_stack_R = double(tiff_stack_R);
+tiff_stack_G = double(tiff_stack_G);
+tiff_stack_B = double(tiff_stack_B);
 
-[B_Tiff_Name,B_Tiff_Path] = uigetfile('*.tif','Blue Image'); %Import Unknown Thickness: Blue Image 
-if isequal(B_Tiff_Name,0)
-   disp('User selected Cancel');
-else
-   disp(['User selected ', fullfile(B_Tiff_Name,B_Tiff_Path)]);
-   B_Tiff = imread(strcat(B_Tiff_Path, B_Tiff_Name));
-end
+firstim = 31;
+lastim = 60;
 
-%%
+sample_R = tiff_stack_R(:,:,firstim:lastim);
+sample_G = tiff_stack_G(:,:,firstim:lastim);
+sample_B = tiff_stack_B(:,:,firstim:lastim);
+%
+[rows,cols,~] = size(tiff_stack_R);
+
+sampleavg_R = uint16(zeros(rows,cols));
+sampleavg_G = uint16(zeros(rows,cols));
+sampleavg_B = uint16(zeros(rows,cols));
+%
+sampleavg_R = sum(sample_R,3);
+sampleavg_G = sum(sample_G,3);
+sampleavg_B = sum(sample_B,3);
+%
+R_Tiff = uint16(sampleavg_R./(lastim-firstim+1));
+G_Tiff = uint16(sampleavg_G./(lastim-firstim+1));
+B_Tiff = uint16(sampleavg_B./(lastim-firstim+1));
+
+
+%
 clearvars -except B_Tiff G_Tiff R_Tiff 
-
+%%
 prompt_NorS = input('Do you know the thickness of your chip? (Y/N)\n', "s");
 if prompt_NorS == 'Y'
 theoric_L = (input('Enter the thickness of your chip in nm: \n'))/1000;
