@@ -1,3 +1,6 @@
+tic
+   % The program section to time. 
+
 clc; clearvars; close all;
 
 load("Osram_Data.mat")
@@ -259,6 +262,6 @@ legend('Dental Blue (460 nm)','Far Red (740 nm)','Infra Red (850 nm)','location'
 
 load("Bulk_Effect_Data.mat")
 
-
+toc
 
 
