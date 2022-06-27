@@ -3,61 +3,70 @@ tic
 clc; clearvars; close all;
 
 load("Imaging_Data.mat")
+Ti_nData = table2array(readtable("Palm.csv"));
+Ti_nData = Ti_nData(110:286,:);
+Ti_n = interp(Ti_nData(:,2),15)'; %refractive index values of Ti
+%%
+L_Ti = linspace(0.05,0.1,2740); %Silicon Oxide thickness on Ti from 50 to 100 nm
+lambda_Ti = interp(Ti_nData(:,1),15)'; %lambda values from 400 to 680 nm
 
+nsqrSiO_Ti =sellmeier(B_SiO,C_SiO,lambda_Ti);
+nrSiO_Ti = (sqrt(nsqrSiO)+conj(sqrt(nsqrSiO)))/2;
+%
+Z1_Ti = [];
+Gamma1_Ti = [];
+%
+for i = 1:numel(lambda_Ti)
+for j = 1:numel(L_Ti)
+[Gamma1_Ti(i,j),Z1_Ti(i,j)] = multidiels([1;nrSiO_Ti(1,i);Ti_n(1,i)],L_Ti(j).*nrSiO_Ti(1,i),lambda_Ti(1,i));
+end
+end
+%
+[MLam_Ti, MThicc_Ti] = meshgrid(lambda_Ti,L_Ti);
+Gamma_Ti = conj(Gamma1_Ti).*Gamma1_Ti; %Multiply Gamma with conjugate to get rid of imaginary component
+
+%
 figure(1)
 
-[MLam, MThicc] = meshgrid(lambda,L);
-Gamma = conj(Gamma1).*Gamma1; %Multiply Gamma with conjugate to get rid of imaginary component
-
-surgraph = surf(MLam,MThicc,Gamma,'EdgeColor','none');
-title('Si/SiO2 Reflectance')
+surgraph = surf(MLam_Ti,MThicc_Ti,Gamma_Ti,'EdgeColor','none');
+title('Ti/SiO2 Reflectance')
 xlim([0.4 0.68])
 xticks([0.4 0.44 0.48 0.52 0.56 0.60 0.64 0.68])
-xticklabels([0 0.0428 0.0857 0.128 0.1714 0.2142 0.2572 0.3])
-ylim([0 0.3])
-yticks([0 0.0428 0.0857 0.128 0.1714 0.2142 0.2572 0.3])
+xticklabels([0.05 0.0571 0.0643 0.0714 0.0785 0.0856 0.0927 0.1])
+ylim([0.05 0.1])
+yticks([0.05 0.0571 0.0643 0.0714 0.0785 0.0856 0.0927 0.1])
 yticklabels([0.4 0.44 0.48 0.52 0.56 0.60 0.64 0.68])
 cb = colorbar;
-
 cb.Location = 'eastoutside';
 xlabel('L (\mum)');
 ylabel('Lambda (\mum)');
 zlabel('Reflectance (%)');
-caxis([0 0.5]);
+caxis([min(min(Gamma_Ti)) max(max(Gamma_Ti))]);
 
+%
 
-% COMPARISON
-% Reflectivity from Gamma matrix at wavelengths 449 nm and 521 nm & thicknesses 72 nm, 77 nm, and 
-% 82 nm are compared to figures 3 & 4 in https://www.researchgate.net/figure/Surface-reflectivity-versus-silicon-dioxide-layer-thickness_fig3_230952570
-
-figure(2) % Thickness vs Reflectance for different wavelengths
-
-lambda_449nm = valtoindex_lambda(0.449); %wavelength at 449 nm
-lambda_521nm = valtoindex_lambda(0.521); %wavelength at 521 nm
+figure(2) % Thickness vs Reflectance for RGB wavelengths
 
 hold on
-plot(L,Gamma(lambda_449nm,:),'b','LineWidth',2)
-plot(L,Gamma(lambda_521nm,:),'g','LineWidth',2)
+plot(L_Ti,Gamma_Ti(valtoindex_lambda_Ti(cw_b),:),'b','LineWidth',2) %Light wavelength in blue
+plot(L_Ti,Gamma_Ti(valtoindex_lambda_Ti(cw_g),:),'g','LineWidth',2) %Light wavelength in green
+plot(L_Ti,Gamma_Ti(valtoindex_lambda_Ti(cw_r),:),'r','LineWidth',2) %Light wavelength in red
 xlabel('Thickness (\mum)')
 ylabel('Reflectance (%)')
-title('Thickness vs Reflectance for different wavelengths')
-legend('449 nm', '521 nm')
+title('Thickness vs Reflectance for RGB wavelengths')
+legend('Blue', 'Green', 'Red')
 
 figure(3) %Wavelength vs Reflectance for different thicknesses
 
-L_72nm = valtoindex_L(0.072); %SiO2 Thickness at 72 nm 
-L_77nm = valtoindex_L(0.077); %SiO2 Thickness at 77 nm 
-L_82nm = valtoindex_L(0.082); %SiO2 Thickness at 82 nm 
-
 hold on
-plot(lambda,Gamma(:,L_72nm),'r','LineWidth',2)
-plot(lambda,Gamma(:,L_77nm),'g','LineWidth',2)
-plot(lambda,Gamma(:,L_82nm),'b','LineWidth',2)
+plot(lambda_Ti,Gamma_Ti(:,valtoindex_L_Ti(0.05)),'r','LineWidth',2) %SiO2 Thickness at 50 nm 
+plot(lambda_Ti,Gamma_Ti(:,valtoindex_L_Ti(0.1)),'g','LineWidth',2) %SiO2 Thickness at 100 nm
+
 xlim([0.4 0.68])
 xlabel('Wavelength \mum)')
 ylabel('Reflectance (%)')
-title('Wavelength vs Reflectance for different thicknesses')
-legend('L = 72 nm', 'L = 77 nm', 'L = 82 nm')
+title('Wavelength vs Reflectance for 50 and 100 nm')
+legend('L = 50 nm', 'L = 100 nm')
 
 % Gamma matrix is proven. Gamma curves at lambda values 449, 521 nm AND L values 72,77,82 nm are 
 % very similar to the curves seen in source graphs.
@@ -70,18 +79,18 @@ legend('L = 72 nm', 'L = 77 nm', 'L = 82 nm')
 figure(4)
 
 hold on
-plot(L,Gamma(valtoindex_lambda(0.46),:),'b','LineWidth',2) %Reflectivity curve at 460 nm (blue)
-plot(L,Gamma(valtoindex_lambda(0.53),:),'g','LineWidth',2) %Reflectivity curve at 530 nm (green)
-plot(L,Gamma(valtoindex_lambda(0.625),:),'r','LineWidth',2) %Reflectivity curve at 625 nm (red)
+plot(L_Ti,Gamma_Ti(valtoindex_lambda_Ti(cw_b),:),'b','LineWidth',2) %Reflectivity curve at 460 nm (blue)
+plot(L_Ti,Gamma_Ti(valtoindex_lambda_Ti(cw_g),:),'g','LineWidth',2) %Reflectivity curve at 530 nm (green)
+plot(L_Ti,Gamma_Ti(valtoindex_lambda_Ti(cw_r),:),'r','LineWidth',2) %Reflectivity curve at 625 nm (red)
 legend('Blue','Green','Red')
 title('RGB Light Reflectivity')
 xlabel('L (\mum)','FontSize',16);
 ylabel('Reflectivity (%)','FontSize',16');
-xlim([0 0.3])
+xlim([0.05 0.1])
 hold off
 
 %Spectrum Data for red, green and blue LEDs are shown in Figure 5.
-
+%%
 load("spectra.mat",'spectra') %Load spectrum data
 blue = spectra{1,1}; %LED Spectrum for B
 green = spectra{1,2}; %LED Spectrum for G
@@ -99,15 +108,15 @@ redspectrum = interp(redspectrum,2);%Red Spectrum from 400 to 680 nm
 figure(5) %Plot RGB Spectrum
 
 hold on
-plot(lambda,bluespectrum,'b','LineWidth',2)
-plot(lambda,greenspectrum,'g','LineWidth',2)
-plot(lambda,redspectrum,'r','LineWidth',2)
+plot(lambda_Ti,bluespectrum,'b','LineWidth',2)
+plot(lambda_Ti,greenspectrum,'g','LineWidth',2)
+plot(lambda_Ti,redspectrum,'r','LineWidth',2)
 title('LED Light Intensities')
 xlim([0.4 0.68])
 xlabel('Wavelength (nm)')
 ylabel('Intensity')
 hold off
-
+%%
 %Multiply LED spectrum with reflectivity curves to find reflected Intensity
 for i = 1:2740
 Ref_spec_red = Gamma(i,valtoindex_L(0))'.*redspectrum; %Reflectivity spectrum for red at 0 nm (R_r) 
