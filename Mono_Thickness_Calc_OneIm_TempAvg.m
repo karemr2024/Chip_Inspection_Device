@@ -34,7 +34,7 @@ end
 tiff_stack_R = double(tiff_stack_R);
 tiff_stack_G = double(tiff_stack_G);
 tiff_stack_B = double(tiff_stack_B);
-
+%
 firstim = 31;
 lastim = 60;
 
@@ -52,10 +52,14 @@ sampleavg_R = sum(sample_R,3);
 sampleavg_G = sum(sample_G,3);
 sampleavg_B = sum(sample_B,3);
 %
-R_Tiff = uint16(sampleavg_R./(lastim-firstim+1));
-G_Tiff = uint16(sampleavg_G./(lastim-firstim+1));
-B_Tiff = uint16(sampleavg_B./(lastim-firstim+1));
+R_Tiff_avg = uint16(sampleavg_R./(lastim-firstim+1));
+G_Tiff_avg = uint16(sampleavg_G./(lastim-firstim+1));
+B_Tiff_avg = uint16(sampleavg_B./(lastim-firstim+1));
 
+imwrite(R_Tiff_avg,"R_Im.tif")
+imwrite(G_Tiff_avg,"G_Im.tif")
+imwrite(B_Tiff_avg,"B_Im.tif")
+%%
 % [G_Tiff_Name,G_Tiff_Path] = uigetfile('*.tif','Green Image'); %Import Unknown Thickness: Green Image
 % if isequal(G_Tiff_Name,0)
 %    disp('User selected Cancel');
@@ -73,7 +77,6 @@ B_Tiff = uint16(sampleavg_B./(lastim-firstim+1));
 % end
 
 %%
-clearvars -except B_Tiff G_Tiff R_Tiff 
 
 prompt_NorS = input('Do you know the thickness of your chip? (Y/N)\n', "s");
 if prompt_NorS == 'Y'
