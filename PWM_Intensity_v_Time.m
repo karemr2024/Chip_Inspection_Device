@@ -77,17 +77,22 @@ end
 %%
 for i = 1:nfiles
 thin_ring_R(:,:,i) = uint16(cropped_im_R_0nm_out(:,:,i)) - uint16(cropped_im_R_0nm_in(:,:,i)); 
-thin_ring_G(:,:,i) = uint16(cropped_im_G_0nm_out(:,:,i)) - uint16(cropped_im_R_0nm_in(:,:,i));
-thin_ring_B(:,:,i) = uint16(cropped_im_B_0nm_out(:,:,i)) - uint16(cropped_im_R_0nm_in(:,:,i));
+thin_ring_G(:,:,i) = uint16(cropped_im_G_0nm_out(:,:,i)) - uint16(cropped_im_G_0nm_in(:,:,i));
+thin_ring_B(:,:,i) = uint16(cropped_im_B_0nm_out(:,:,i)) - uint16(cropped_im_B_0nm_in(:,:,i));
 end
 
 %%
 
-
 for i = 1:nfiles
-    avgR(i) = mean(mean(thin_ring_R(:,:,i)));   
-    avgG(i) = mean(mean(thin_ring_G(:,:,i)));   
-    avgB(i) = mean(mean(thin_ring_B(:,:,i)));   
+    nonzeros_R(:,i) = nonzeros(thin_ring_R(:,:,i));
+    nonzeros_G(:,i) = nonzeros(thin_ring_G(:,:,i));
+    nonzeros_B(:,i) = nonzeros(thin_ring_B(:,:,i));
+end
+%%
+for i = 1:nfiles
+    avgR(i) = mean(mean(nonzeros_R(:,i)));   
+    avgG(i) = mean(mean(nonzeros_G(:,i)));   
+    avgB(i) = mean(mean(nonzeros_B(:,i)));   
 end
 
 %%
