@@ -6,26 +6,26 @@ load("Imaging_Data.mat")
 Ti_nData = table2array(readtable("Palm.csv"));
 Ti_nData = Ti_nData(110:286,:);
 Ti_n = interp(Ti_nData(:,2),15)'; %refractive index values of Ti
-%%
-L_Ti = linspace(0.05,0.1,2740); %Silicon Oxide thickness on Ti from 50 to 100 nm
+%
+L_Ti = linspace(0.05,0.1,2655); %Silicon Oxide thickness on Ti from 50 to 100 nm
 lambda_Ti = interp(Ti_nData(:,1),15)'; %lambda values from 400 to 680 nm
 
-nsqrSiO_Ti =sellmeier(B_SiO,C_SiO,lambda_Ti);
-nrSiO_Ti = (sqrt(nsqrSiO)+conj(sqrt(nsqrSiO)))/2;
+nsqrSiO =sellmeier(B_SiO,C_SiO,lambda_Ti);
+nrSiO = (sqrt(nsqrSiO)+conj(sqrt(nsqrSiO)))/2;
 %
 Z1_Ti = [];
 Gamma1_Ti = [];
 %
 for i = 1:numel(lambda_Ti)
 for j = 1:numel(L_Ti)
-[Gamma1_Ti(i,j),Z1_Ti(i,j)] = multidiels([1;nrSiO_Ti(1,i);Ti_n(1,i)],L_Ti(j).*nrSiO_Ti(1,i),lambda_Ti(1,i));
+[Gamma1_Ti(i,j),Z1_Ti(i,j)] = multidiels([1;nrSiO(1,i);Ti_n(1,i)],L_Ti(j).*nrSiO(1,i),lambda_Ti(1,i));
 end
 end
 %
 [MLam_Ti, MThicc_Ti] = meshgrid(lambda_Ti,L_Ti);
 Gamma_Ti = conj(Gamma1_Ti).*Gamma1_Ti; %Multiply Gamma with conjugate to get rid of imaginary component
 
-%
+%%
 figure(1)
 
 surgraph = surf(MLam_Ti,MThicc_Ti,Gamma_Ti,'EdgeColor','none');

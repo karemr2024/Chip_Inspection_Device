@@ -29,50 +29,6 @@ else
    B_Tiff = imread(strcat(B_Tiff_Path, B_Tiff_Name));
 end
 
-%UNCOMMENT ENDS
-
-% tiff_info_R = imfinfo('StackR.tif'); % return tiff structure, one element per image
-% tiff_stack_R = imread('StackR.tif', 1) ; % read in first image
-% tiff_info_G = imfinfo('StackG.tif'); % return tiff structure, one element per image
-% tiff_stack_G = imread('StackG.tif', 1) ; % read in first image
-% tiff_info_B = imfinfo('StackB.tif'); % return tiff structure, one element per image
-% tiff_stack_B = imread('StackB.tif', 1) ; % read in first image
-% %concatenate each successive tiff to tiff_stack
-% for i = 2 : size(tiff_info_R, 1)
-%     temp_tiff_R = imread('StackR.tif', i);
-%     tiff_stack_R = cat(3 , tiff_stack_R, temp_tiff_R);
-%     temp_tiff_G = imread('StackG.tif', i);
-%     tiff_stack_G = cat(3 , tiff_stack_G, temp_tiff_G);
-%     temp_tiff_B = imread('StackB.tif', i);
-%     tiff_stack_B = cat(3 , tiff_stack_B, temp_tiff_B);
-% end
-% 
-% tiff_stack_R = double(tiff_stack_R);
-% tiff_stack_G = double(tiff_stack_G);
-% tiff_stack_B = double(tiff_stack_B);
-% 
-% firstim = 31;
-% lastim = 60;
-% 
-% sample_R = tiff_stack_R(:,:,firstim:lastim);
-% sample_G = tiff_stack_G(:,:,firstim:lastim);
-% sample_B = tiff_stack_B(:,:,firstim:lastim);
-% %
-% [rows,cols,~] = size(tiff_stack_R);
-% 
-% sampleavg_R = uint16(zeros(rows,cols));
-% sampleavg_G = uint16(zeros(rows,cols));
-% sampleavg_B = uint16(zeros(rows,cols));
-% %
-% sampleavg_R = sum(sample_R,3);
-% sampleavg_G = sum(sample_G,3);
-% sampleavg_B = sum(sample_B,3);
-% %
-% R_Tiff = uint16(sampleavg_R./(lastim-firstim+1));
-% G_Tiff = uint16(sampleavg_G./(lastim-firstim+1));
-% B_Tiff = uint16(sampleavg_B./(lastim-firstim+1));
-
-
 %
 clearvars -except B_Tiff G_Tiff R_Tiff 
 %%
