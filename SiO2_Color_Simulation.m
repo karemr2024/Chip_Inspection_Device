@@ -208,7 +208,7 @@ imtot = uint8(round(I_totnorm));
 imagesc(imtot)
 set(gca,'YDir','normal')
 ylim([1,30])
-title('Simulated Color')
+title('Simulated Color Si-SiO_2')
 xlabel('Thickness')
 xticks([valtoindex_L(0) valtoindex_L(0.05) valtoindex_L(0.10) valtoindex_L(0.15) valtoindex_L(0.20) valtoindex_L(0.25) valtoindex_L(0.30)])
 xticklabels([0 0.05 0.10 0.15 0.20 0.25 0.30])
