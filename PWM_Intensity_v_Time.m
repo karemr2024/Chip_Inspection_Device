@@ -6,19 +6,19 @@ tic
 clearvars; clc; close all;
 %START NEW CODE
 
-tiff_info_R = imfinfo('_FPSTEST_45fps_G.tif'); % return tiff structure, one element per image
-tiff_stack_R = imread('_FPSTEST_45fps_G.tif', 1) ; % read in first image
-tiff_info_G = imfinfo('_FPSTEST_45fps_B.tif'); % return tiff structure, one element per image
-tiff_stack_G = imread('_FPSTEST_45fps_B.tif', 1) ; % read in first image
-tiff_info_B = imfinfo('_FPSTEST_45fps_R.tif'); % return tiff structure, one element per image
-tiff_stack_B = imread('_FPSTEST_45fps_R.tif', 1) ; % read in first image
+tiff_info_R = imfinfo('_FPSTEST_70fps_G.tif'); % return tiff structure, one element per image
+tiff_stack_R = imread('_FPSTEST_70fps_G.tif', 1) ; % read in first image
+tiff_info_G = imfinfo('_FPSTEST_70fps_B.tif'); % return tiff structure, one element per image
+tiff_stack_G = imread('_FPSTEST_70fps_B.tif', 1) ; % read in first image
+tiff_info_B = imfinfo('_FPSTEST_70fps_R.tif'); % return tiff structure, one element per image
+tiff_stack_B = imread('_FPSTEST_70fps_R.tif', 1) ; % read in first image
 %concatenate each successive tiff to tiff_stack
 for i = 2 : size(tiff_info_R, 1)
-    temp_tiff_R = imread('_FPSTEST_45fps_G.tif', i);
+    temp_tiff_R = imread('_FPSTEST_70fps_G.tif', i);
     tiff_stack_R = cat(3 , tiff_stack_R, temp_tiff_R);
-    temp_tiff_G = imread('_FPSTEST_45fps_B.tif', i);
+    temp_tiff_G = imread('_FPSTEST_70fps_B.tif', i);
     tiff_stack_G = cat(3 , tiff_stack_G, temp_tiff_G);
-    temp_tiff_B = imread('_FPSTEST_45fps_R.tif', i);
+    temp_tiff_B = imread('_FPSTEST_70fps_R.tif', i);
     tiff_stack_B = cat(3 , tiff_stack_B, temp_tiff_B);
 end
 
@@ -38,7 +38,7 @@ clearvars -except tiff_stack_B tiff_stack_G tiff_stack_R
 % imagefiles = imagefiles(~[imagefiles.isdir]);
 % [~,idx] = sort([imagefiles.datenum]);
 % imagefiles = imagefiles(idx);
-
+%
 % [display_image_crop,x_crop_0nm,y_crop_0nm] = AreaSelection(imread(imagefiles(2).name));
 
 [R_Crop_Bothnm(:,:,1),x_crop_Bothnm,y_crop_Bothnm] = AreaSelection_Circle(tiff_stack_R(:,:,1));
@@ -71,7 +71,7 @@ for i = 2:nfiles
     cropped_im_B_0nm_in(:,:,i) = AreaSelection_Circle_Mod_SiIn(cropped_im_B_0nm_out(:,:,i),x_crop_0nm_in,y_crop_0nm_in);
 end
 
-%%
+%
 for i = 1:nfiles
 thin_ring_R(:,:,i) = uint16(cropped_im_R_0nm_out(:,:,i)) - uint16(cropped_im_R_0nm_in(:,:,i)); 
 thin_ring_G(:,:,i) = uint16(cropped_im_G_0nm_out(:,:,i)) - uint16(cropped_im_G_0nm_in(:,:,i));
@@ -87,34 +87,41 @@ for i = 1:nfiles
 end
 %
 for i = 1:nfiles
-    avgR(i) = mean(mean(nonzeros_R(:,i)));   
-    avgG(i) = mean(mean(nonzeros_G(:,i)));   
-    avgB(i) = mean(mean(nonzeros_B(:,i))); 
+    avgR(i) = mean(nonzeros_R(:,i));   
+    avgG(i) = mean(nonzeros_G(:,i));   
+    avgB(i) = mean(nonzeros_B(:,i)); 
 end
-%%
+
+meanavgR = mean(avgR);
+meanavgG = mean(avgG);
+meanavgB = mean(avgB);
+
+%
  for i = 1:nfiles
-     if avgR(i) > mean(avgR)+1000 | avgR(i) < mean(avgR)-1000
-         avgR(i) = mean(avgR)
+     if avgR(i) > 1.05*meanavgR | avgR(i) < 0.95*meanavgR
+         avgR(i) = meanavgR;
      end
  end
+
  for i = 1:nfiles
-     if avgG(i) > mean(avgG)+1000 | avgG(i) < mean(avgG)-1000
-        avgG(i) = mean(avgG)
+     if avgG(i) > 1.05*meanavgG | avgG(i) < 0.95*meanavgG
+        avgG(i) = meanavgG;
      end
  end
+
  for i = 1:nfiles
-     if avgB(i) > mean(avgB)+1000 | avgB(i) < mean(avgB)-1000
-         avgB(i) = mean(avgB)
+     if avgB(i) > 1.05*meanavgB | avgB(i) < 0.95*meanavgB
+         avgB(i) = meanavgB;
      end
  end
-%%
+%
 xaxis = linspace(1,nfiles,nfiles);
 figure(1)
 hold on
 plot(xaxis,avgR,'r')
 plot(xaxis,avgG,'g')
 plot(xaxis,avgB,'b')
-title('FPS = 60')
+title('FPS = 70')
 xlabel('# images')
 ylabel('not normalized intensity')
 %%
@@ -128,10 +135,11 @@ plot(xaxis,normavgR,'r')
 plot(xaxis,normavgG,'g')
 plot(xaxis,normavgB,'b')
 ylim([90 100])
-title('FPS = 45')
+title('FPS = 70')
+%% 
 xlabel('# images')
 ylabel('normalized intensity')
-saveas(figure(2),[pwd '/REAL_FPS_IMAGES/45FPS.fig']);
+saveas(figure(2),[pwd '/FPS_IMAGES/70FPS.fig']);
 %%
 %%
 % for ii=1:nfiles
