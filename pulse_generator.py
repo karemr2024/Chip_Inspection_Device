@@ -52,6 +52,8 @@ def one_led_pulse(led_num):
         __SERIAL.write("2".encode())
     elif led_num == 3:
         __SERIAL.write("3".encode())
+    elif led_num == 4:
+        __SERIAL.write("4".encode())
     else:
         __SERIAL.write("0".encode())
     __SERIAL.flush()

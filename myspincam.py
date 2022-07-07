@@ -26,30 +26,37 @@ def get_one_image_fast(cam):
     while img.IsIncomplete():
         img = cam.GetNextImage()
     if not img.IsIncomplete():
-        imray = np.array(img.GetNDArray(), dtype=np.uint16)
+        # imray = np.array(img.GetNDArray(), dtype=np.uint16)
+        imray = np.frombuffer(img.GetNDArray(), dtype=np.uint16)
         imdict['image_ptr'] = img
         imdict['image_array'] = imray
         imdict['timestamp'] = img.GetTimeStamp()
         img.Release()
         return imdict
-    print("capture")
 
 
 def get_one_image_array(cam, imray):
     imdict = {}
-    # imray = initialise_img_arrays(cam)
-    img = cam.GetNextImage()
-    while img.IsIncomplete():
+    if cam.EventFrameStart: #original
+    # if cam.EventFrameEnd:
+    # if cam.EventExposureEnd:
+    # if cam.EventExposureStart:
         img = cam.GetNextImage()
-    if not img.IsIncomplete():
-        if PySpin.CameraPtr.EventExposureEnd:
+        while img.IsIncomplete():
+            img = cam.GetNextImage()
             img.Release()
-            imray = np.multiply(imray, np.array(img.GetNDArray(), dtype=np.uint16))
-            imdict['image_ptr'] = img
-            imdict['image_array'] = imray
-            imdict['timestamp'] = img.GetTimeStamp()
-            return imdict, True
-    print("capture")
+        if not img.IsIncomplete():
+            # if cam.EventExposureEnd: #original
+            # if cam.EventFrameStart:
+            if cam.EventFrameEnd:
+            # if cam.EventExposureStart:
+                img.Release()
+                imray = np.multiply(imray, np.array(img.GetNDArray(), dtype=np.uint16))
+                # imray = np.multiply(imray, np.frombuffer(img.GetNDArray(), dtype=np.uint16))
+                imdict['image_ptr'] = img
+                imdict['image_array'] = imray
+                imdict['timestamp'] = img.GetTimeStamp()
+                return imdict, True
 
 
 def cam_node_cmd(cam, cam_attr_str, cam_method_str, pyspin_mode_str=None, cam_method_arg=None):
@@ -114,6 +121,7 @@ def set_exposure(cam, exposure):
 
 
 def set_frame_rate(cam, frame_rate):
+    cam_node_cmd(cam, 'AcquisitionFrameRateEnable', 'SetValue', 'RW', True)
     cam_node_cmd(cam, 'AcquisitionFrameRate', 'SetValue', 'RW', frame_rate)
 
 
@@ -131,11 +139,19 @@ def set_pixel_format(cam):
     cam.PixelFormat.SetValue(PySpin.PixelFormat_Mono16)
     print('Pixel format is set %s...' % cam.PixelFormat.GetCurrentEntry().GetSymbolic())
 
+
 def set_trigger(cam):
     cam_node_cmd(cam, 'TriggerMode', 'SetValue', 'RW', PySpin.TriggerMode_Off)
     cam_node_cmd(cam, 'TriggerSource', 'SetValue', 'RW', PySpin.TriggerSource_Software)
     cam_node_cmd(cam, 'TriggerSelector', 'SetValue', 'RW', PySpin.TriggerSelector_FrameStart)
     cam_node_cmd(cam, 'TriggerMode', 'SetValue', 'RW', PySpin.TriggerMode_On)
+
+
+def set_cam_buffer(cam):
+    # PySpin.StreamBufferHandlingMode_NewestFirst
+    # PySpin.StreamBufferHandlingMode_NewestOnly
+    # PySpin.StreamBufferHandlingMode_OldestFirstOverwrite
+    cam.TLStream.StreamBufferHandlingMode.SetValue(PySpin.StreamBufferHandlingMode_NewestOnly)
 
 
 def disable_auto_exp(cam):
@@ -274,7 +290,7 @@ def grab_next_image_by_trigger(nodemap, cam, trigger):
 
         if trigger == "SOFTWARE":
             # Get user input
-            input('Press the Enter key to initiate software trigger.')
+            # input('Press the Enter key to initiate software trigger.')
 
             # Execute software trigger
             node_softwaretrigger_cmd = PySpin.CCommandPtr(nodemap.GetNode('TriggerSoftware'))
