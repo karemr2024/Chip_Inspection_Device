@@ -72,6 +72,7 @@ for i = 1:nfiles
    tiff_stack_G(:,:,i) = cell2mat(Gims(i));
    tiff_stack_B(:,:,i) = cell2mat(Bims(i));
 end
+%%
 
 %% Prompt user to select circular ROI and crop the same ROIs from each images
 
@@ -196,7 +197,8 @@ meanavgB = mean(nonzeros_B_0nm);
 %% FILTERING ENDS
 
 xaxis = 1:nfiles;
-IntvTime = figure(1);
+
+figure
 hold on
 plot(xaxis,meanavgR,'r')
 plot(xaxis,meanavgG,'g')
@@ -205,20 +207,85 @@ plot(xaxis,meanavgB,'b')
 xlabel('# images')
 ylabel('not normalized intensity')
 
+%% Ask user to input range for temporal average
+pause(1)
 firstim = input('Begin Temporal Average = ');
-lastim = input('End Temporal Average = ');
-close(IntvTime)
+pause(1)
+lastim =  input('End Temporal Average = ');
 
-sample_R = zeros(rows,cols,lastim-firstim+1);
-sample_G = zeros(rows,cols,lastim-firstim+1);
-sample_B = zeros(rows,cols,lastim-firstim+1);
+%% Choose sample for inputted range FIX HERE!!!!!!!!!!!!!
+close(figure)
+
+% sample_R = zeros(rows,cols,lastim-firstim+1);
+% sample_G = zeros(rows,cols,lastim-firstim+1);
+% sample_B = zeros(rows,cols,lastim-firstim+1); %%OLD VERSION
+
+% for i = 1:lastim-firstim+1
+% sample_R(:,:,i) = cell2mat(Rims(firstim-1+i));
+% sample_G(:,:,i) = cell2mat(Gims(firstim-1+i)); 
+% sample_B(:,:,i) = cell2mat(Bims(firstim-1+i)); 
+% end 
 
 for i = 1:lastim-firstim+1
-sample_R(:,:,i) = cell2mat(Rims(firstim-1+i));
-sample_G(:,:,i) = cell2mat(Gims(firstim-1+i)); 
-sample_B(:,:,i) = cell2mat(Bims(firstim-1+i)); 
+sample_R(:,:,i) = tiff_stack_R(firstim-1+i); %NEW VERSION UPDATE TOMORROW
+sample_G(:,:,i) = tiff_stack_G(firstim-1+i); 
+sample_B(:,:,i) = tiff_stack_B(firstim-1+i); 
+end 
+
+%% Normalize Intensity v Time and display
+
+normmeanavgsampleR = meanavgR(firstim:lastim);
+normmeanavgsampleG = meanavgG(firstim:lastim);
+normmeanavgsampleB = meanavgB(firstim:lastim);
+
+normmeanavgR = normmeanavgsampleR/max(max(normmeanavgsampleR));
+normmeanavgG = normmeanavgsampleG/max(max(normmeanavgsampleG));
+normmeanavgB = normmeanavgsampleB/max(max(normmeanavgsampleB));
+%%
+normxaxis = firstim:lastim;
+
+figure
+hold on
+plot(normxaxis,normmeanavgR*100,'r')
+plot(normxaxis,normmeanavgG*100,'g')
+plot(normxaxis,normmeanavgB*100,'b')
+ylim([90 100])
+xlim([firstim lastim])
+% title('FPS =')
+xlabel('# images')
+ylabel('normalized intensity')
+
+%%
+
+num = length(normmeanavgB);
+stepsize = input("Enter step size: ")
+
+for i = 1:num/stepsize
+    tempavgR(i) = 100*mean(normmeanavgR(i*10-9:stepsize*i))
+    tempavgG(i) = 100*mean(normmeanavgG(i*10-9:stepsize*i))
+    tempavgB(i) = 100*mean(normmeanavgB(i*10-9:stepsize*i))
 end
 
+tempavgxaxis = firstim:stepsize:lastim;
+%%
+figure
+hold on
+plot(tempavgxaxis,tempavgR,'r')
+plot(tempavgxaxis,tempavgG,'g')
+plot(tempavgxaxis,tempavgB,'b')
+ylim([90 100])
+xlim([firstim lastim])
+xlabel('# images')
+ylabel('normalized intensity')
+
+%%
+percentflucR = max(normmeanavgR) - min(normmeanavgR)
+percentflucG = max(normmeanavgG) - min(normmeanavgG)
+percentflucB = max(normmeanavgB) - min(normmeanavgB)
+
+fprintf("Percent fluctuation at R is %f \n",percentflucR)
+fprintf("Percent fluctuation at G is %f \n",percentflucG)
+fprintf("Percent fluctuation at B is %f \n",percentflucB)
 %% Make the number of elements in silicon and oxide equal
 
 if numel(nonzeros_R_0nm) > numel(nonzeros_R_Xnm)
@@ -351,7 +418,7 @@ imagesc(thin_ring_B(:,:,1))
 colormap
 colorbar
 caxis([double(min(min(nonzeros(thin_ring_B)))) double(max(max(nonzeros(thin_ring_B))))]);
-title('B Ring ROI')s 
+title('B Ring ROI')
 
 %% UN/COMMENT ENDS
 
