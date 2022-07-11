@@ -1,6 +1,8 @@
+%% NOT USED ANYMORE
+
 function est_L = reftocurve(RefRed, RefGreen, RefBlue)
 
-load("Imaging_Data.mat")
+load("Simulation_Data.mat")
 RefRed = [cw_r, RefRed]; %Reflectance Point at Red
 RefGreen = [cw_g, RefGreen]; %Reflectance Point at Green
 RefBlue = [cw_b, RefBlue]; %Reflectance Point at Blue
@@ -20,3 +22,4 @@ est_in = find(avg_L_Diff == min(avg_L_Diff)); %find index of minimum difference
 est_L = L(est_in); %find estimated thickness
 end
 
+%% NOT USED ANYMORE

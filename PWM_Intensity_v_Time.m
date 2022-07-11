@@ -6,20 +6,64 @@ tic
 clearvars; clc; close all;
 %START NEW CODE
 
-tiff_info_R = imfinfo('_FPSTEST_70fps_G.tif'); % return tiff structure, one element per image
-tiff_stack_R = imread('_FPSTEST_70fps_G.tif', 1) ; % read in first image
-tiff_info_G = imfinfo('_FPSTEST_70fps_B.tif'); % return tiff structure, one element per image
-tiff_stack_G = imread('_FPSTEST_70fps_B.tif', 1) ; % read in first image
-tiff_info_B = imfinfo('_FPSTEST_70fps_R.tif'); % return tiff structure, one element per image
-tiff_stack_B = imread('_FPSTEST_70fps_R.tif', 1) ; % read in first image
-%concatenate each successive tiff to tiff_stack
-for i = 2 : size(tiff_info_R, 1)
-    temp_tiff_R = imread('_FPSTEST_70fps_G.tif', i);
-    tiff_stack_R = cat(3 , tiff_stack_R, temp_tiff_R);
-    temp_tiff_G = imread('_FPSTEST_70fps_B.tif', i);
-    tiff_stack_G = cat(3 , tiff_stack_G, temp_tiff_G);
-    temp_tiff_B = imread('_FPSTEST_70fps_R.tif', i);
-    tiff_stack_B = cat(3 , tiff_stack_B, temp_tiff_B);
+[R_Tiff_Name,R_Tiff_Path] = uigetfile('*.mat','Red Stack'); %Import Unknown Thickness: Red Image
+if isequal(R_Tiff_Name,0)
+   disp('User selected Cancel');
+else
+   disp(['User selected ', fullfile(R_Tiff_Name,R_Tiff_Path)]);
+   R_Stack_pre = load(strcat(R_Tiff_Path, R_Tiff_Name));
+end
+
+[G_Tiff_Name,G_Tiff_Path] = uigetfile('*.mat','Green Stack'); %Import Unknown Thickness: Green Image
+if isequal(G_Tiff_Name,0)
+   disp('User selected Cancel');
+else
+   disp(['User selected ', fullfile(G_Tiff_Name,G_Tiff_Path)]);
+   G_Stack_pre = load(strcat(G_Tiff_Path, G_Tiff_Name));
+end
+
+[B_Tiff_Name,B_Tiff_Path] = uigetfile('*.mat','Blue Stack'); %Import Unknown Thickness: Blue Image
+if isequal(B_Tiff_Name,0)
+   disp('User selected Cancel');
+else
+   disp(['User selected ', fullfile(B_Tiff_Name,B_Tiff_Path)]);
+   B_Stack_pre = load(strcat(B_Tiff_Path, B_Tiff_Name));
+end
+
+tic
+
+ clearvars -except R_Stack_pre B_Stack_pre G_Stack_pre 
+%% INPUT EXPERIMENT DETAILS EVERY TIME
+
+FPS = 55
+BufferMode = 'First Only'
+StartEventType = 'Frame Start' 
+EndEventType = 'Exposure End'
+Camera = 'BFS-U3-17S7M-C' 
+LED = 'RGB'
+
+%%
+
+R_Stack = struct2cell(R_Stack_pre);
+G_Stack = struct2cell(G_Stack_pre);
+B_Stack = struct2cell(B_Stack_pre);
+
+Rims = R_Stack(1:2:end);
+Rtimes =R_Stack(2:2:end);
+Gims = G_Stack(1:2:end);
+Gtimes = G_Stack(2:2:end);
+Bims = B_Stack(1:2:end);
+Btimes = B_Stack(2:2:end);
+%%
+% tiff_stack_R = uint16(rand(rows,cols,nfiles));
+% tiff_stack_G = uint16(rand(rows,cols,nfiles));
+% tiff_stack_B = uint16(rand(rows,cols,nfiles));
+
+%%
+for i = 1:nfiles
+   tiff_stack_R(:,:,i) = cat(3,cell2mat(Rims(i)));
+   tiff_stack_G(:,:,i) = cat(3,cell2mat(Gims(i)));
+   tiff_stack_B(:,:,i) = cat(3,cell2mat(Bims(i)));
 end
 
 %%
@@ -115,7 +159,7 @@ meanavgB = mean(avgB);
      end
  end
 %
-xaxis = linspace(1,nfiles,nfiles);
+xaxis = 1:10;
 figure(1)
 hold on
 plot(xaxis,avgR,'r')
