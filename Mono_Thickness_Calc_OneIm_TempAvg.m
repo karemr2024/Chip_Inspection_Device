@@ -198,7 +198,7 @@ meanavgB = mean(nonzeros_B_0nm);
 
 xaxis = 1:nfiles;
 
-figure
+IntvTime = figure(1)
 hold on
 plot(xaxis,meanavgR,'r')
 plot(xaxis,meanavgG,'g')
@@ -208,13 +208,92 @@ xlabel('# images')
 ylabel('not normalized intensity')
 
 %% Ask user to input range for temporal average
+% pause(1)
+% firstim = input('Begin Temporal Average = ');
+% pause(1)
+% lastim =  input('End Temporal Average = ');
 pause(1)
-firstim = input('Begin Temporal Average = ');
-pause(1)
-lastim =  input('End Temporal Average = ');
+HCutoffR = input("Enter red high cutoff value: ");
+LCutoffR = input("Enter red low cutoff value: ");
+HCutoffG = input("Enter green high cutoff value: ");
+LCutoffG = input("Enter green low cutoff value: ");
+HCutoffB = input("Enter blue high cutoff value: ");
+LCutoffB = input("Enter blue low cutoff value: ");
+%%
+
+R_bigger = double(meanavgR>HCutoffR)
+R_smaller = double(meanavgR<LCutoffR)
+G_bigger = double(meanavgG>HCutoffG)
+G_smaller = double(meanavgG<LCutoffG)
+B_bigger = double(meanavgB>HCutoffB)
+B_smaller = double(meanavgB<LCutoffB)
+%%
+BigSmall = [R_bigger;R_smaller;G_bigger;G_smaller;B_bigger;B_smaller];
+%%
+Elims = double(find(mean(BigSmall) ~= 0))
+%%
+
+filtmeanavgR = meanavgR;
+filtmeanavgG = meanavgG;
+filtmeanavgB = meanavgB;
+
+filtmeanavgR(Elims) = []
+filtmeanavgG(Elims) = []
+filtmeanavgB(Elims) = []
+
+close(IntvTime)
+
+figure(2)
+hold on
+plot(xaxis,meanavgR,'r')
+plot(xaxis,meanavgG,'g')
+plot(xaxis,meanavgB,'b')
+% title('FPS =')
+xlabel('# images')
+ylabel('not normalized intensity')
+%%
+xline(Elims)
+%%
+
+filtxaxis = 1:length(filtmeanavgB)
+figure(3)
+hold on
+plot(filtxaxis,filtmeanavgR,'r')
+plot(filtxaxis,filtmeanavgG,'g')
+plot(filtxaxis,filtmeanavgB,'b')
+
+%%
+% for i = 1:nfiles
+% if meanavgR(i) > HCutoffR | meanavgR(i) < LCutoffR 
+%   meanavgR(i) = [];
+%   meanavgG(i) = [];
+%   meanavgB(i) = [];
+%   xline(i)
+% end        
+% end
+% 
+% for i = 1:nfiles
+% if meanavgG(i) > HCutoffG | meanavgB(i) < LCutoffG 
+%   meanavgR(i) = [];
+%   meanavgG(i) = [];
+%   meanavgB(i) = [];
+%   xline(i)
+% end        
+% end
+% 
+% for i = 1:nfiles
+% if meanavgB(i) > HCutoffB | meanavgB(i) < LCutoffB 
+%   meanavgR(i) = [];
+%   meanavgG(i) = [];
+%   meanavgB(i) = [];
+%   xline(i)
+% end        
+% end
+
+% close(IntvTime)
 
 %% Choose sample for inputted range FIX HERE!!!!!!!!!!!!!
-close(figure)
+close(figure(3))
 
 % sample_R = zeros(rows,cols,lastim-firstim+1);
 % sample_G = zeros(rows,cols,lastim-firstim+1);
@@ -226,31 +305,34 @@ close(figure)
 % sample_B(:,:,i) = cell2mat(Bims(firstim-1+i)); 
 % end 
 
-for i = 1:lastim-firstim+1
-sample_R(:,:,i) = tiff_stack_R(firstim-1+i); %NEW VERSION UPDATE TOMORROW
-sample_G(:,:,i) = tiff_stack_G(firstim-1+i); 
-sample_B(:,:,i) = tiff_stack_B(firstim-1+i); 
-end 
+% for i = 1:lastim-firstim+1
+% sample_R(:,:,i) = tiff_stack_R(firstim-1+i); %NEW VERSION UPDATE TOMORROW
+% sample_G(:,:,i) = tiff_stack_G(firstim-1+i); 
+% sample_B(:,:,i) = tiff_stack_B(firstim-1+i); 
+% end 
 
 %% Normalize Intensity v Time and display
 
-normmeanavgsampleR = meanavgR(firstim:lastim);
-normmeanavgsampleG = meanavgG(firstim:lastim);
-normmeanavgsampleB = meanavgB(firstim:lastim);
+% normmeanavgsampleR = meanavgR(firstim:lastim);
+% normmeanavgsampleG = meanavgG(firstim:lastim);
+% normmeanavgsampleB = meanavgB(firstim:lastim);
 
-normmeanavgR = normmeanavgsampleR/max(max(normmeanavgsampleR));
-normmeanavgG = normmeanavgsampleG/max(max(normmeanavgsampleG));
-normmeanavgB = normmeanavgsampleB/max(max(normmeanavgsampleB));
+normmeanavgR = filtmeanavgR/max(max(filtmeanavgR));
+normmeanavgG = filtmeanavgG/max(max(filtmeanavgG));
+normmeanavgB = filtmeanavgB/max(max(filtmeanavgB));
 %%
-normxaxis = firstim:lastim;
+% normxaxis = firstim:lastim;
 
-figure
+figure(4)
 hold on
-plot(normxaxis,normmeanavgR*100,'r')
-plot(normxaxis,normmeanavgG*100,'g')
-plot(normxaxis,normmeanavgB*100,'b')
+plot(filtxaxis,normmeanavgR*100,'r')
+plot(filtxaxis,normmeanavgG*100,'g')
+plot(filtxaxis,normmeanavgB*100,'b')
+% plot(normxaxis,normmeanavgR*100,'r')
+% plot(normxaxis,normmeanavgG*100,'g')
+% plot(normxaxis,normmeanavgB*100,'b')
 ylim([90 100])
-xlim([firstim lastim])
+xlim([1 length(normmeanavgB)])
 % title('FPS =')
 xlabel('# images')
 ylabel('normalized intensity')
@@ -258,30 +340,30 @@ ylabel('normalized intensity')
 %%
 
 num = length(normmeanavgB);
-stepsize = input("Enter step size: ")
-
-for i = 1:num/stepsize
-    tempavgR(i) = 100*mean(normmeanavgR(i*10-9:stepsize*i))
-    tempavgG(i) = 100*mean(normmeanavgG(i*10-9:stepsize*i))
-    tempavgB(i) = 100*mean(normmeanavgB(i*10-9:stepsize*i))
-end
-
-tempavgxaxis = firstim:stepsize:lastim;
+stepsize = input("Enter step size: ");
 %%
-figure
+for i = 1:num/stepsize
+    tempavgR(i) = 100*mean(normmeanavgR(i*10-9:stepsize*i));
+    tempavgG(i) = 100*mean(normmeanavgG(i*10-9:stepsize*i));
+    tempavgB(i) = 100*mean(normmeanavgB(i*10-9:stepsize*i));
+end
+%%
+tempavgxaxis = 1:length(tempavgB)
+%%
+figure(5)
 hold on
 plot(tempavgxaxis,tempavgR,'r')
 plot(tempavgxaxis,tempavgG,'g')
 plot(tempavgxaxis,tempavgB,'b')
 ylim([90 100])
-xlim([firstim lastim])
+xlim([0 length(tempavgB)])
 xlabel('# images')
 ylabel('normalized intensity')
 
 %%
-percentflucR = max(normmeanavgR) - min(normmeanavgR)
-percentflucG = max(normmeanavgG) - min(normmeanavgG)
-percentflucB = max(normmeanavgB) - min(normmeanavgB)
+percentflucR = max(normmeanavgR) - min(normmeanavgR);
+percentflucG = max(normmeanavgG) - min(normmeanavgG);
+percentflucB = max(normmeanavgB) - min(normmeanavgB);
 
 fprintf("Percent fluctuation at R is %f \n",percentflucR)
 fprintf("Percent fluctuation at G is %f \n",percentflucG)
@@ -330,7 +412,7 @@ esti_L = reftocurve_lsqr(MeanRefRed_at_XnmO2,MeanRefGre_at_XnmO2,MeanRefBlu_at_X
 
 %% Display estimated thicknesses and fitted thickness curves for RGB
 
-figure
+figure(6)
 hold on
 
 %% Plot calculated reflectance values at RGB
@@ -422,4 +504,7 @@ title('B Ring ROI')
 
 %% UN/COMMENT ENDS
 
+
+
+%%
 toc
