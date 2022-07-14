@@ -4,31 +4,78 @@ tic
 clc; clearvars; close all;
 fprintf('Beginning to run %s.m ...\n', mfilename);
 
+%% START NEW IMAGE LOAD
+
+matB = dir('B_CHIP87_5ms_45FPS_1000IMG_BFS-U3-17S7M-C');
+matG = dir('G_CHIP87_5ms_45FPS_1000IMG_BFS-U3-17S7M-C');
+matR = dir('R_CHIP87_5ms_45FPS_1000IMG_BFS-U3-17S7M-C');
+
+%% ENTER EXPERIMENT DETAILS AND CREATE FOLDER
+
+Chip_no = input('Chip #: ',"s")
+Exposure = input('Exposure time (ms): ',"s")
+FPS = input('FPS: ',"s")
+ImgCount = input('# of images: ' ,"s")
+Camera = 'BFS-U3-17S7M-C' 
+%%
+foldername =  append('/experiments/results/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS_',ImgCount,'_IMG',Camera)
+%%
+projectdir = 'C:\Tepegoz\iRiS_Kinetics_Github\experiments\results';
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera));
+mkdir(fullfile(projectdir, subfolder_name));
+
+%%
+matB = (matB(3:end));
+matG = (matG(3:end));
+matR = (matR(3:end));
+%%
+cellB = struct2cell(matB);
+cellG = struct2cell(matG);
+cellR = struct2cell(matR);
+%%
+
+imsB = cellB(1,:);
+imsG = cellG(1,:);
+imsR = cellR(1,:);
+
+%%
+[rows, cols] = size(cell2mat(imsR(1)));
+nfiles = length(imsR);
+%%
+
+for i = 1:nfiles
+B_Stack_pre(i) = load(imsB{1,i});
+G_Stack_pre(i) = load(imsG{1,i});
+R_Stack_pre(i) = load(imsR{1,i});
+end
+
+%% END NEW IMAGE LOAD
+
 %% Below are prompts for user to input unknown SiO2 nm images in .mat format
 
-[R_Tiff_Name,R_Tiff_Path] = uigetfile('*.mat','Red Stack'); %Import Unknown Thickness: Red Image
-if isequal(R_Tiff_Name,0)
-   disp('User selected Cancel');
-else
-   disp(['User selected ', fullfile(R_Tiff_Name,R_Tiff_Path)]);
-   R_Stack_pre = load(strcat(R_Tiff_Path, R_Tiff_Name));
-end
-
-[G_Tiff_Name,G_Tiff_Path] = uigetfile('*.mat','Green Stack'); %Import Unknown Thickness: Green Image
-if isequal(G_Tiff_Name,0)
-   disp('User selected Cancel');
-else
-   disp(['User selected ', fullfile(G_Tiff_Name,G_Tiff_Path)]);
-   G_Stack_pre = load(strcat(G_Tiff_Path, G_Tiff_Name));
-end
-
-[B_Tiff_Name,B_Tiff_Path] = uigetfile('*.mat','Blue Stack'); %Import Unknown Thickness: Blue Image
-if isequal(B_Tiff_Name,0)
-   disp('User selected Cancel');
-else
-   disp(['User selected ', fullfile(B_Tiff_Name,B_Tiff_Path)]);
-   B_Stack_pre = load(strcat(B_Tiff_Path, B_Tiff_Name));
-end
+% [R_Tiff_Name,R_Tiff_Path] = uigetfile('*.mat','Red Stack'); %Import Unknown Thickness: Red Image
+% if isequal(R_Tiff_Name,0)
+%    disp('User selected Cancel');
+% else
+%    disp(['User selected ', fullfile(R_Tiff_Name,R_Tiff_Path)]);
+%    R_Stack_pre = load(strcat(R_Tiff_Path, R_Tiff_Name));
+% end
+% 
+% [G_Tiff_Name,G_Tiff_Path] = uigetfile('*.mat','Green Stack'); %Import Unknown Thickness: Green Image
+% if isequal(G_Tiff_Name,0)
+%    disp('User selected Cancel');
+% else
+%    disp(['User selected ', fullfile(G_Tiff_Name,G_Tiff_Path)]);
+%    G_Stack_pre = load(strcat(G_Tiff_Path, G_Tiff_Name));
+% end
+% 
+% [B_Tiff_Name,B_Tiff_Path] = uigetfile('*.mat','Blue Stack'); %Import Unknown Thickness: Blue Image
+% if isequal(B_Tiff_Name,0)
+%    disp('User selected Cancel');
+% else
+%    disp(['User selected ', fullfile(B_Tiff_Name,B_Tiff_Path)]);
+%    B_Stack_pre = load(strcat(B_Tiff_Path, B_Tiff_Name));
+% end
 
 %% Prompt user about the thickness of the chip
 
@@ -48,12 +95,20 @@ B_Stack = struct2cell(B_Stack_pre);
 
 %% Separate images and timestamps
 
-Rims = R_Stack(1:2:end);
-Rtimes =R_Stack(2:2:end);
-Gims = G_Stack(1:2:end);
-Gtimes = G_Stack(2:2:end);
-Bims = B_Stack(1:2:end);
-Btimes = B_Stack(2:2:end);
+%% UN/COMMENT FOR OLD VERSION
+% Rims = R_Stack(1:2:end);
+% Rtimes =R_Stack(2:2:end);
+% Gims = G_Stack(1:2:end);
+% Gtimes = G_Stack(2:2:end);
+% Bims = B_Stack(1:2:end);
+% Btimes = B_Stack(2:2:end);
+%% UN/COMMENT ENDS
+
+%% UN/COMMENT FOR NEW VERSION
+Rims = R_Stack;
+Gims = G_Stack;
+Bims = B_Stack;
+%% UN/COMMENT ENDS
 
 %% Get size
 
@@ -62,9 +117,9 @@ nfiles = length(Rims);
 
 %% Convert RGB stacks to matrices
 
-tiff_stack_R = uint16(zeros(rows,cols,nfiles));
-tiff_stack_G = uint16(zeros(rows,cols,nfiles));
-tiff_stack_B = uint16(zeros(rows,cols,nfiles));
+% tiff_stack_R = uint16(zeros(rows,cols,nfiles));
+% tiff_stack_G = uint16(zeros(rows,cols,nfiles));
+% tiff_stack_B = uint16(zeros(rows,cols,nfiles));
 %%
 
 for i = 1:nfiles
@@ -130,6 +185,9 @@ thin_ring_R = uint16(cropped_im_R_0nm_out) - uint16(cropped_im_R_0nm_in);
 thin_ring_G = uint16(cropped_im_G_0nm_out) - uint16(cropped_im_G_0nm_in);
 thin_ring_B = uint16(cropped_im_B_0nm_out) - uint16(cropped_im_B_0nm_in);
 
+%%
+
+
 %% Get nonzeros of one
 
 nonzeros_R_0nm = nonzeros(thin_ring_R(:,:,1));
@@ -166,13 +224,39 @@ nonzeros_G_Xnm(:,i) = nonzeros(cropped_im_G_Xnm(:,:,i))';
 nonzeros_B_Xnm(:,i) = nonzeros(cropped_im_B_Xnm(:,:,i))';
 end
 
+%% Make the number of elements in silicon and oxide equal
+
+% if numel(nonzeros_R_0nm) > numel(nonzeros_R_Xnm)
+%     nonzeros_R_0nm = nonzeros_R_0nm(1:rowsnonzerosXnm,:);
+% elseif numel(nonzeros_R_0nm) < numel(nonzeros_R_Xnm)
+%     nonzeros_R_Xnm = nonzeros_R_Xnm(1:rowsnonzeros0nm,:); 
+% end
+% 
+% if numel(nonzeros_G_0nm) > numel(nonzeros_G_Xnm)
+%     nonzeros_G_0nm = nonzeros_G_0nm(1:rowsnonzerosXnm,:);
+% elseif numel(nonzeros_G_0nm) < numel(nonzeros_G_Xnm)
+%     nonzeros_G_Xnm = nonzeros_G_Xnm(1:rowsnonzeros0nm,:); 
+% end
+% 
+% if numel(nonzeros_B_0nm) > numel(nonzeros_B_Xnm)
+%     nonzeros_B_0nm = nonzeros_B_0nm(1:rowsnonzerosXnm,:);
+% elseif numel(nonzeros_B_0nm) < numel(nonzeros_B_Xnm)
+%     nonzeros_B_Xnm = nonzeros_B_Xnm(1:rowsnonzeros0nm,:); 
+% end
+
 %% INTENSITY v TIME GRAPHS AT SILICON ONLY (THIN RING)
+
+%% Get the mean of the silicon values
+
+meanR_0nm = mean(nonzeros_R_0nm);
+meanG_0nm = mean(nonzeros_G_0nm);
+meanB_0nm = mean(nonzeros_B_0nm);
 
 %% Get the mean of the silicon oxide values
 
-meanavgR = mean(nonzeros_R_0nm);
-meanavgG = mean(nonzeros_G_0nm);
-meanavgB = mean(nonzeros_B_0nm);
+meanR_Xnm = mean(nonzeros_R_Xnm);
+meanG_Xnm = mean(nonzeros_G_Xnm);
+meanB_Xnm = mean(nonzeros_B_Xnm);
 
 %% OPTIONAL FILTERING
 
@@ -198,20 +282,34 @@ meanavgB = mean(nonzeros_B_0nm);
 
 xaxis = 1:nfiles;
 
-IntvTime = figure(1)
+%% DISPLAY RAW MEAN DATA FOR SILICON
+
+figure(1)
 hold on
-plot(xaxis,meanavgR,'r')
-plot(xaxis,meanavgG,'g')
-plot(xaxis,meanavgB,'b')
-% title('FPS =')
+plot(xaxis,meanR_0nm,'r')
+plot(xaxis,meanG_0nm,'g')
+plot(xaxis,meanB_0nm,'b')
 xlabel('# images')
 ylabel('not normalized intensity')
+title('raw mean data for silicon')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig1'));
+saveas(figure(1),fullfile(projectdir, subfolder_name));
 
-%% Ask user to input range for temporal average
-% pause(1)
-% firstim = input('Begin Temporal Average = ');
-% pause(1)
-% lastim =  input('End Temporal Average = ');
+%% FIX SAVING AT THE FOLDER TOMORROW
+
+figure(2)
+hold on
+plot(xaxis,meanR_Xnm,'r')
+plot(xaxis,meanG_Xnm,'g')
+plot(xaxis,meanB_Xnm,'b')
+xlabel('# images')
+ylabel('not normalized intensity')
+title('raw mean data for silicon oxide')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig2'));
+saveas(figure(2),fullfile(projectdir, subfolder_name));
+
+%% Ask user to input range for cutoff values
+
 pause(1)
 HCutoffR = input("Enter red high cutoff value: ");
 LCutoffR = input("Enter red low cutoff value: ");
@@ -221,184 +319,314 @@ HCutoffB = input("Enter blue high cutoff value: ");
 LCutoffB = input("Enter blue low cutoff value: ");
 %%
 
-R_bigger = double(meanavgR>HCutoffR)
-R_smaller = double(meanavgR<LCutoffR)
-G_bigger = double(meanavgG>HCutoffG)
-G_smaller = double(meanavgG<LCutoffG)
-B_bigger = double(meanavgB>HCutoffB)
-B_smaller = double(meanavgB<LCutoffB)
+R_bigger = double(meanR_0nm>HCutoffR);
+R_smaller = double(meanR_0nm<LCutoffR);
+G_bigger = double(meanG_0nm>HCutoffG);
+G_smaller = double(meanG_0nm<LCutoffG);
+B_bigger = double(meanB_0nm>HCutoffB);
+B_smaller = double(meanB_0nm<LCutoffB);
 %%
 BigSmall = [R_bigger;R_smaller;G_bigger;G_smaller;B_bigger;B_smaller];
 %%
-Elims = double(find(mean(BigSmall) ~= 0))
+Elims = double(find(mean(BigSmall) ~= 0));
+%% DELETE VARIABLES THAT SHOULD BE ELIMINATED
+
+filtmeanR_0nm = meanR_0nm;
+filtmeanG_0nm = meanG_0nm;
+filtmeanB_0nm = meanB_0nm;
+
+filtmeanR_Xnm = meanR_Xnm;
+filtmeanG_Xnm = meanG_Xnm;
+filtmeanB_Xnm = meanB_Xnm;
+
+filtmeanR_0nm(Elims) = [];
+filtmeanG_0nm(Elims) = [];
+filtmeanB_0nm(Elims) = [];
+
+filtmeanR_Xnm(Elims) = [];
+filtmeanG_Xnm(Elims) = [];
+filtmeanB_Xnm(Elims) = [];
+
+nonzeros_R_0nm(:,Elims) = [];
+nonzeros_G_0nm(:,Elims) = [];
+nonzeros_B_0nm(:,Elims) = [];
+
+nonzeros_R_Xnm(:,Elims) = [];
+nonzeros_G_Xnm(:,Elims) = [];
+nonzeros_B_Xnm(:,Elims) = [];
 %%
 
-filtmeanavgR = meanavgR;
-filtmeanavgG = meanavgG;
-filtmeanavgB = meanavgB;
+thin_ring_R_clean = thin_ring_R;
+thin_ring_G_clean = thin_ring_G;
+thin_ring_B_clean = thin_ring_B;
 
-filtmeanavgR(Elims) = []
-filtmeanavgG(Elims) = []
-filtmeanavgB(Elims) = []
+thin_ring_R_clean(:,:,Elims) = [];
+thin_ring_G_clean(:,:,Elims) = [];
+thin_ring_B_clean(:,:,Elims) = [];
 
-close(IntvTime)
+%% RAW INTENSITY WITH ELIMINATION LINES
 
-figure(2)
+figure(3)
 hold on
-plot(xaxis,meanavgR,'r')
-plot(xaxis,meanavgG,'g')
-plot(xaxis,meanavgB,'b')
+plot(xaxis,meanR_0nm,'r')
+plot(xaxis,meanG_0nm,'g')
+plot(xaxis,meanB_0nm,'b')
+% xline(Elims)
 % title('FPS =')
 xlabel('# images')
 ylabel('not normalized intensity')
+title('Silicon, vertical lines are to be eliminated')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig3'));
+saveas(figure(3),fullfile(projectdir, subfolder_name));
 %%
-xline(Elims)
-%%
-
-filtxaxis = 1:length(filtmeanavgB)
-figure(3)
-hold on
-plot(filtxaxis,filtmeanavgR,'r')
-plot(filtxaxis,filtmeanavgG,'g')
-plot(filtxaxis,filtmeanavgB,'b')
-
-%%
-% for i = 1:nfiles
-% if meanavgR(i) > HCutoffR | meanavgR(i) < LCutoffR 
-%   meanavgR(i) = [];
-%   meanavgG(i) = [];
-%   meanavgB(i) = [];
-%   xline(i)
-% end        
-% end
-% 
-% for i = 1:nfiles
-% if meanavgG(i) > HCutoffG | meanavgB(i) < LCutoffG 
-%   meanavgR(i) = [];
-%   meanavgG(i) = [];
-%   meanavgB(i) = [];
-%   xline(i)
-% end        
-% end
-% 
-% for i = 1:nfiles
-% if meanavgB(i) > HCutoffB | meanavgB(i) < LCutoffB 
-%   meanavgR(i) = [];
-%   meanavgG(i) = [];
-%   meanavgB(i) = [];
-%   xline(i)
-% end        
-% end
-
-% close(IntvTime)
-
-%% Choose sample for inputted range FIX HERE!!!!!!!!!!!!!
-close(figure(3))
-
-% sample_R = zeros(rows,cols,lastim-firstim+1);
-% sample_G = zeros(rows,cols,lastim-firstim+1);
-% sample_B = zeros(rows,cols,lastim-firstim+1); %%OLD VERSION
-
-% for i = 1:lastim-firstim+1
-% sample_R(:,:,i) = cell2mat(Rims(firstim-1+i));
-% sample_G(:,:,i) = cell2mat(Gims(firstim-1+i)); 
-% sample_B(:,:,i) = cell2mat(Bims(firstim-1+i)); 
-% end 
-
-% for i = 1:lastim-firstim+1
-% sample_R(:,:,i) = tiff_stack_R(firstim-1+i); %NEW VERSION UPDATE TOMORROW
-% sample_G(:,:,i) = tiff_stack_G(firstim-1+i); 
-% sample_B(:,:,i) = tiff_stack_B(firstim-1+i); 
-% end 
-
-%% Normalize Intensity v Time and display
-
-% normmeanavgsampleR = meanavgR(firstim:lastim);
-% normmeanavgsampleG = meanavgG(firstim:lastim);
-% normmeanavgsampleB = meanavgB(firstim:lastim);
-
-normmeanavgR = filtmeanavgR/max(max(filtmeanavgR));
-normmeanavgG = filtmeanavgG/max(max(filtmeanavgG));
-normmeanavgB = filtmeanavgB/max(max(filtmeanavgB));
-%%
-% normxaxis = firstim:lastim;
-
 figure(4)
 hold on
-plot(filtxaxis,normmeanavgR*100,'r')
-plot(filtxaxis,normmeanavgG*100,'g')
-plot(filtxaxis,normmeanavgB*100,'b')
-% plot(normxaxis,normmeanavgR*100,'r')
-% plot(normxaxis,normmeanavgG*100,'g')
-% plot(normxaxis,normmeanavgB*100,'b')
+plot(xaxis,meanR_Xnm,'r')
+plot(xaxis,meanG_Xnm,'g')
+plot(xaxis,meanB_Xnm,'b')
+% xline(Elims)
+% title('FPS =')
+xlabel('# images')
+ylabel('not normalized intensity')
+title('Silicon Oxide, vertical lines are to be eliminated')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig4'));
+saveas(figure(4),fullfile(projectdir, subfolder_name));
+%% NOT NORMALIZED AND FILTERED INTENSITY
+
+filtxaxis = 1:length(filtmeanB_Xnm)
+
+figure(5)
+hold on
+plot(filtxaxis,filtmeanR_0nm,'r')
+plot(filtxaxis,filtmeanG_0nm,'g')
+plot(filtxaxis,filtmeanB_0nm,'b')
+xlabel('# images')
+ylabel('not normalized intensity')
+title('Silicon, outliers filtered out')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig5'));
+saveas(figure(5),fullfile(projectdir, subfolder_name));
+%%
+figure(6)
+hold on
+plot(filtxaxis,filtmeanR_Xnm,'r')
+plot(filtxaxis,filtmeanG_Xnm,'g')
+plot(filtxaxis,filtmeanB_Xnm,'b')
+xlabel('# images')
+ylabel('not normalized intensity')
+title('Silicon Oxide outliers filtered out')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig6'));
+saveas(figure(6),fullfile(projectdir, subfolder_name));
+
+%% Normalize Intensity v Time and display (Normalized Filtered Average)
+
+normfiltR_0nm = filtmeanR_0nm/max(max(filtmeanR_0nm));
+normfiltG_0nm = filtmeanG_0nm/max(max(filtmeanG_0nm));
+normfiltB_0nm = filtmeanB_0nm/max(max(filtmeanB_0nm));
+
+normfiltR_Xnm = filtmeanR_Xnm/max(max(filtmeanR_Xnm));
+normfiltG_Xnm = filtmeanG_Xnm/max(max(filtmeanG_Xnm));
+normfiltB_Xnm = filtmeanB_Xnm/max(max(filtmeanB_Xnm));
+
+%% NORMALIZED AND FILTERED INTENSITY
+
+figure(7)
+hold on
+plot(filtxaxis,normfiltR_0nm*100,'r')
+plot(filtxaxis,normfiltG_0nm*100,'g')
+plot(filtxaxis,normfiltB_0nm*100,'b')
 ylim([90 100])
-xlim([1 length(normmeanavgB)])
+xlim([1 length(normfiltB_0nm)])
 % title('FPS =')
 xlabel('# images')
 ylabel('normalized intensity')
+title('Silicon, outliers filtered out')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig7'));
+saveas(figure(7),fullfile(projectdir, subfolder_name));
 
 %%
-
-num = length(normmeanavgB);
-stepsize = input("Enter step size: ");
-%%
-for i = 1:num/stepsize
-    tempavgR(i) = 100*mean(normmeanavgR(i*10-9:stepsize*i));
-    tempavgG(i) = 100*mean(normmeanavgG(i*10-9:stepsize*i));
-    tempavgB(i) = 100*mean(normmeanavgB(i*10-9:stepsize*i));
-end
-%%
-tempavgxaxis = 1:length(tempavgB)
-%%
-figure(5)
+figure(8)
 hold on
-plot(tempavgxaxis,tempavgR,'r')
-plot(tempavgxaxis,tempavgG,'g')
-plot(tempavgxaxis,tempavgB,'b')
+plot(filtxaxis,normfiltR_Xnm*100,'r')
+plot(filtxaxis,normfiltG_Xnm*100,'g')
+plot(filtxaxis,normfiltB_Xnm*100,'b')
 ylim([90 100])
-xlim([0 length(tempavgB)])
+xlim([1 length(normfiltB_Xnm)])
+% title('FPS =')
 xlabel('# images')
 ylabel('normalized intensity')
+title('Silicon Oxide, outliers filtered out')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig8'));
+saveas(figure(8),fullfile(projectdir, subfolder_name));
 
 %%
-percentflucR = max(normmeanavgR) - min(normmeanavgR);
-percentflucG = max(normmeanavgG) - min(normmeanavgG);
-percentflucB = max(normmeanavgB) - min(normmeanavgB);
+percentflucR_0nm = max(normfiltR_0nm) - min(normfiltR_0nm);
+percentflucG_0nm = max(normfiltG_0nm) - min(normfiltG_0nm);
+percentflucB_0nm = max(normfiltB_0nm) - min(normfiltB_0nm);
 
-fprintf("Percent fluctuation at R is %f \n",percentflucR)
-fprintf("Percent fluctuation at G is %f \n",percentflucG)
-fprintf("Percent fluctuation at B is %f \n",percentflucB)
-%% Make the number of elements in silicon and oxide equal
+percentflucR_Xnm = max(normfiltR_Xnm) - min(normfiltR_Xnm);
+percentflucG_Xnm = max(normfiltG_Xnm) - min(normfiltG_Xnm);
+percentflucB_Xnm = max(normfiltB_Xnm) - min(normfiltB_Xnm);
 
-if numel(nonzeros_R_0nm) > numel(nonzeros_R_Xnm)
-    nonzeros_R_0nm = nonzeros_R_0nm(1:rowsnonzerosXnm,:);
-elseif numel(nonzeros_R_0nm) < numel(nonzeros_R_Xnm)
-    nonzeros_R_Xnm = nonzeros_R_Xnm(1:rowsnonzeros0nm,:); 
+fprintf("Percent fluctuation at Silicon at R is %f \n",percentflucR_0nm)
+fprintf("Percent fluctuation at Silicon at G is %f \n",percentflucG_0nm)
+fprintf("Percent fluctuation at Silicon at B is %f \n",percentflucB_0nm)
+
+fprintf("Percent fluctuation at Silicon Oxide at R is %f \n",percentflucR_Xnm)
+fprintf("Percent fluctuation at Silicon Oxide at G is %f \n",percentflucG_Xnm)
+fprintf("Percent fluctuation at Silicon Oxide at B is %f \n",percentflucB_Xnm)
+%%
+
+num = length(normfiltB_0nm);
+stepsize = input("Enter step size: ");
+
+%% NOT NORMALIZED AND FILTERED TEMPORAL AVERAGE WITH STEP SIZE
+for i = 1:num/stepsize
+    tempavgR_0nm(i) = mean(filtmeanR_0nm((stepsize*(i-1))+1:stepsize*i));
+    tempavgG_0nm(i) = mean(filtmeanG_0nm((stepsize*(i-1))+1:stepsize*i));
+    tempavgB_0nm(i) = mean(filtmeanB_0nm((stepsize*(i-1))+1:stepsize*i));
+end
+%%
+for i = 1:num/stepsize
+    tempavgR_Xnm(i) = mean(filtmeanR_Xnm((stepsize*(i-1))+1:stepsize*i));
+    tempavgG_Xnm(i) = mean(filtmeanG_Xnm((stepsize*(i-1))+1:stepsize*i));
+    tempavgB_Xnm(i) = mean(filtmeanB_Xnm((stepsize*(i-1))+1:stepsize*i));
 end
 
-if numel(nonzeros_G_0nm) > numel(nonzeros_G_Xnm)
-    nonzeros_G_0nm = nonzeros_G_0nm(1:rowsnonzerosXnm,:);
-elseif numel(nonzeros_G_0nm) < numel(nonzeros_G_Xnm)
-    nonzeros_G_Xnm = nonzeros_G_Xnm(1:rowsnonzeros0nm,:); 
+%% FOR THICKNESS CALCULATION
+
+for i = 1:num/stepsize
+    tempavgR_0nm_th(:,:,i) = uint16(sum(thin_ring_R_clean(:,:,(stepsize*(i-1))+1:stepsize*i),3) ./ stepsize);
+    tempavgG_0nm_th(:,:,i) = uint16(sum(thin_ring_G_clean(:,:,(stepsize*(i-1))+1:stepsize*i),3) ./ stepsize);
+    tempavgB_0nm_th(:,:,i) = uint16(sum(thin_ring_B_clean(:,:,(stepsize*(i-1))+1:stepsize*i),3) ./ stepsize);
+end
+%%
+for i = 1:num/stepsize
+    tempavgR_Xnm_th(:,:,i) = uint16(sum(cropped_im_R_Xnm(:,:,(stepsize*(i-1))+1:stepsize*i),3) ./ stepsize);
+    tempavgG_Xnm_th(:,:,i) = uint16(sum(cropped_im_G_Xnm(:,:,(stepsize*(i-1))+1:stepsize*i),3) ./ stepsize);
+    tempavgB_Xnm_th(:,:,i) = uint16(sum(cropped_im_B_Xnm(:,:,(stepsize*(i-1))+1:stepsize*i),3) ./ stepsize);
 end
 
-if numel(nonzeros_B_0nm) > numel(nonzeros_B_Xnm)
-    nonzeros_B_0nm = nonzeros_B_0nm(1:rowsnonzerosXnm,:);
-elseif numel(nonzeros_B_0nm) < numel(nonzeros_B_Xnm)
-    nonzeros_B_Xnm = nonzeros_B_Xnm(1:rowsnonzeros0nm,:); 
+% nonzeros_0nm
+
+%%
+tempavgxaxis = 1:length(tempavgB_0nm);
+
+figure(9)
+hold on
+plot(tempavgxaxis,tempavgR_0nm,'r')
+plot(tempavgxaxis,tempavgG_0nm,'g')
+plot(tempavgxaxis,tempavgB_0nm,'b')
+ylim([0 max(tempavgB_0nm)])
+xlim([1 length(tempavgB_0nm)])
+xlabel('# images')
+ylabel('not normalized intensity')
+title('Silicon, outliers filtered out')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig9'));
+saveas(figure(9),fullfile(projectdir, subfolder_name));
+
+%%
+
+figure(10)
+hold on
+plot(tempavgxaxis,tempavgR_Xnm,'r')
+plot(tempavgxaxis,tempavgG_Xnm,'g')
+plot(tempavgxaxis,tempavgB_Xnm,'b')
+ylim([0 max(tempavgB_Xnm)])
+xlim([1 length(tempavgB_Xnm)])
+xlabel('# images')
+ylabel('not normalized intensity')
+title('Silicon Oxide, outliers filtered out')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig10'));
+saveas(figure(10),fullfile(projectdir, subfolder_name));
+
+%% NORMALIZED AND FILTERED TEMPORAL AVERAGE WITH STEPSIZE
+
+for i = 1:num/stepsize
+    tempavgRnorm_0nm(i) = 100*mean(normfiltR_0nm((stepsize*(i-1))+1:stepsize*i));
+    tempavgGnorm_0nm(i) = 100*mean(normfiltG_0nm((stepsize*(i-1))+1:stepsize*i));
+    tempavgBnorm_0nm(i) = 100*mean(normfiltB_0nm((stepsize*(i-1))+1:stepsize*i));
 end
+
+for i = 1:num/stepsize
+    tempavgRnorm_Xnm(i) = 100*mean(normfiltR_Xnm((stepsize*(i-1))+1:stepsize*i));
+    tempavgGnorm_Xnm(i) = 100*mean(normfiltG_Xnm((stepsize*(i-1))+1:stepsize*i));
+    tempavgBnorm_Xnm(i) = 100*mean(normfiltB_Xnm((stepsize*(i-1))+1:stepsize*i));
+end
+
+%%
+figure(11)
+hold on
+plot(tempavgxaxis,tempavgRnorm_0nm,'r')
+plot(tempavgxaxis,tempavgGnorm_0nm,'g')
+plot(tempavgxaxis,tempavgBnorm_0nm,'b')
+ylim([90 100])
+xlim([1 length(tempavgB_0nm)])
+xlabel('# images')
+ylabel('normalized intensity')
+title('Silicon, outliers filtered out')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig11'));
+saveas(figure(11),fullfile(projectdir, subfolder_name));
+%%
+figure(12)
+hold on
+plot(tempavgxaxis,tempavgRnorm_Xnm,'r')
+plot(tempavgxaxis,tempavgGnorm_Xnm,'g')
+plot(tempavgxaxis,tempavgBnorm_Xnm,'b')
+ylim([90 100])
+xlim([1 length(tempavgB_Xnm)])
+xlabel('# images')
+ylabel('normalized intensity')
+title('Silicon Oxide, outliers filtered out')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig12'));
+saveas(figure(12),fullfile(projectdir, subfolder_name));
+%%
+
+
+for i = 1:size(tempavgB_Xnm_th,3)
+nonzeros_R_0nm_th(:,i) = nonzeros(tempavgR_0nm_th(:,:,i));
+nonzeros_G_0nm_th(:,i) = nonzeros(tempavgG_0nm_th(:,:,i));
+nonzeros_B_0nm_th(:,i) = nonzeros(tempavgB_0nm_th(:,:,i));
+
+nonzeros_R_Xnm_th(:,i) = nonzeros(tempavgR_Xnm_th(:,:,i));
+nonzeros_G_Xnm_th(:,i) = nonzeros(tempavgG_Xnm_th(:,:,i));
+nonzeros_B_Xnm_th(:,i) = nonzeros(tempavgB_Xnm_th(:,:,i));
+end
+
+
+%%
+
+if numel(nonzeros_R_0nm_th) > numel(nonzeros_R_Xnm_th)
+    nonzeros_R_0nm_th = nonzeros_R_0nm_th(1:rowsnonzerosXnm,:);
+elseif numel(nonzeros_R_0nm_th) < numel(nonzeros_R_Xnm_th)
+    nonzeros_R_Xnm_th = nonzeros_R_Xnm_th(1:rowsnonzeros0nm,:); 
+end
+%%
+if numel(nonzeros_G_0nm_th) > numel(nonzeros_G_Xnm_th)
+    nonzeros_G_0nm_th = nonzeros_G_0nm_th(1:rowsnonzerosXnm,:);
+elseif numel(nonzeros_G_0nm_th) < numel(nonzeros_G_Xnm_th)
+    nonzeros_G_Xnm_th = nonzeros_G_Xnm_th(1:rowsnonzeros0nm,:); 
+end
+
+if numel(nonzeros_B_0nm_th) > numel(nonzeros_B_Xnm_th)
+    nonzeros_B_0nm_th = nonzeros_B_0nm_th(1:rowsnonzerosXnm,:);
+elseif numel(nonzeros_B_0nm_th) < numel(nonzeros_B_Xnm_th)
+    nonzeros_B_Xnm_th = nonzeros_B_Xnm_th(1:rowsnonzeros0nm,:); 
+end
+
+
+
 
 %% Intensity_in calculation (calibration) I_in = I_out_Si / Reflectance
 
-I_inR = round(double(nonzeros_R_0nm) ./ Ref_at_0nm_R);
-I_inG = round(double(nonzeros_G_0nm) ./ Ref_at_0nm_G);
-I_inB = round(double(nonzeros_B_0nm) ./ Ref_at_0nm_B);
+I_inR = round(double(nonzeros_R_0nm_th) ./ Ref_at_0nm_R);
+I_inG = round(double(nonzeros_G_0nm_th) ./ Ref_at_0nm_G);
+I_inB = round(double(nonzeros_B_0nm_th) ./ Ref_at_0nm_B);
 
 %% Reflectance from oxide calculation: Reflectance_Oxide = I_Out_SiO2 / I_in
 
-RefRed_at_XnmO2 = (double(nonzeros_R_Xnm)./I_inR);
-RefGre_at_XnmO2 = (double(nonzeros_G_Xnm)./I_inG);
-RefBlu_at_XnmO2 = (double(nonzeros_B_Xnm)./I_inB);
+RefRed_at_XnmO2 = (double(nonzeros_R_Xnm_th)./I_inR);
+RefGre_at_XnmO2 = (double(nonzeros_G_Xnm_th)./I_inG);
+RefBlu_at_XnmO2 = (double(nonzeros_B_Xnm_th)./I_inB);
 
 %% Take the average of Reflectance values in R,G,B only pixels
 
@@ -412,7 +640,7 @@ esti_L = reftocurve_lsqr(MeanRefRed_at_XnmO2,MeanRefGre_at_XnmO2,MeanRefBlu_at_X
 
 %% Display estimated thicknesses and fitted thickness curves for RGB
 
-figure(6)
+figure(13)
 hold on
 
 %% Plot calculated reflectance values at RGB
@@ -444,6 +672,9 @@ legend2 = sprintf('L = %0.2f nm', 1000*theoric_L);
 legend(legend1, legend2,'Ref at R','Ref at G','Ref at B','location','bestoutside')
 title("Actual Thickness is " + theoric_L*1000 + " nm, Estimated Thickness is " + esti_L*1000 + " nm")
 
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig13'));
+saveas(figure(13),fullfile(projectdir, subfolder_name));
+
 if isnumeric(theoric_L)
 percent_error = 100*((abs(esti_L-theoric_L))/theoric_L);
 fprintf('Actual thickness is %f nm \n',theoric_L*1000)
@@ -458,49 +689,63 @@ end
 
 %% CODE TO SHOW MANUALLY SELECTED OXIDE OF FIRST IMAGE OF SELECTION (UN/COMMENT STARTING HERE)
 
-figure
+figure(14)
 imagesc(cropped_im_R_Xnm(:,:,1))
 colormap
 colorbar
 caxis([min(min(nonzeros(cropped_im_R_Xnm))) max(max(nonzeros(cropped_im_R_Xnm)))]);
 title('Cropped R Xnm ROI')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig14'));
+saveas(figure(14),fullfile(projectdir, subfolder_name));
 
-figure
+figure(15)
 imagesc(cropped_im_G_Xnm(:,:,1))
 colormap
 colorbar
 caxis([min(min(nonzeros(cropped_im_G_Xnm))) max(max(nonzeros(cropped_im_G_Xnm)))]);
 title('Cropped G Xnm ROI')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig15'));
+saveas(figure(15),fullfile(projectdir, subfolder_name));
 
-figure
+figure(16)
 imagesc(cropped_im_B_Xnm(:,:,1))
 colormap
 colorbar
 caxis([min(min(nonzeros(cropped_im_B_Xnm))) max(max(nonzeros(cropped_im_B_Xnm)))]);
 title('Cropped B Xnm ROI')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig16'));
+saveas(figure(16),fullfile(projectdir, subfolder_name));
 
 %% UN/COMMENT ENDS
 
 %% CODE TO SHOW RGB RINGS OF FIRST IMAGE OF SELECTION
 
-figure
+figure(17)
 imagesc(thin_ring_R(:,:,1))
 colormap
 colorbar
 caxis([min(min(nonzeros(thin_ring_R))) max(max(nonzeros(thin_ring_R)))]);
 title('R Ring ROI')
-figure
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig17'));
+saveas(figure(17),fullfile(projectdir, subfolder_name));
+
+figure(18)
 imagesc(thin_ring_G(:,:,1))
 colormap
 colorbar
 caxis([min(min(nonzeros(thin_ring_G))) max(max(nonzeros(thin_ring_G)))]);
 title('G Ring ROI')
-figure
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig18'));
+saveas(figure(18),fullfile(projectdir, subfolder_name));
+
+figure(19)
 imagesc(thin_ring_B(:,:,1))
 colormap
 colorbar
 caxis([double(min(min(nonzeros(thin_ring_B)))) double(max(max(nonzeros(thin_ring_B))))]);
 title('B Ring ROI')
+subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig19'));
+saveas(figure(19),fullfile(projectdir, subfolder_name));
 
 %% UN/COMMENT ENDS
 
