@@ -6,9 +6,9 @@ fprintf('Beginning to run %s.m ...\n', mfilename);
 
 %% START NEW IMAGE LOAD
 
-matB = dir('B_CHIP87_5ms_45FPS_1000IMG_BFS-U3-17S7M-C');
-matG = dir('G_CHIP87_5ms_45FPS_1000IMG_BFS-U3-17S7M-C');
-matR = dir('R_CHIP87_5ms_45FPS_1000IMG_BFS-U3-17S7M-C');
+matB = dir('B_CHIP87_5ms_40FPS_1000IMG');
+matG = dir('G_CHIP87_5ms_40FPS_1000IMG');
+matR = dir('R_CHIP87_5ms_40FPS_1000IMG');
 
 %% ENTER EXPERIMENT DETAILS AND CREATE FOLDER
 
@@ -371,7 +371,7 @@ hold on
 plot(xaxis,meanR_0nm,'r')
 plot(xaxis,meanG_0nm,'g')
 plot(xaxis,meanB_0nm,'b')
-% xline(Elims)
+xline(Elims)
 % title('FPS =')
 xlabel('# images')
 ylabel('not normalized intensity')
@@ -384,7 +384,7 @@ hold on
 plot(xaxis,meanR_Xnm,'r')
 plot(xaxis,meanG_Xnm,'g')
 plot(xaxis,meanB_Xnm,'b')
-% xline(Elims)
+xline(Elims)
 % title('FPS =')
 xlabel('# images')
 ylabel('not normalized intensity')
@@ -651,25 +651,34 @@ plot(cw_b,MeanRefBlu_at_XnmO2,'b.','MarkerSize',30)
 
 %% Plot fitted reflectance curves at estimated thickness for RGB
 
-plot(lambda,Gamma_B(:,valtoindex_L(abs(esti_L))),'r--','LineWidth',2)
+plot(lambda,Gamma_B(:,valtoindex_L(abs(esti_L))),'b--','LineWidth',2)
 plot(lambda,Gamma_G(:,valtoindex_L(abs(esti_L))),'g--','LineWidth',2)
-plot(lambda,Gamma_R(:,valtoindex_L(abs(esti_L))),'b--','LineWidth',2)
-% plot(lambda,Gamma(:,valtoindex_L(abs(esti_L))),'b--','LineWidth',2)
+plot(lambda,Gamma_R(:,valtoindex_L(abs(esti_L))),'r--','LineWidth',2)
+% plot(lambda,Gamma(:,valtoindex_L(abs(esti_L))),'c--','LineWidth',2)
 
 %% Plot simulated reflectance curve at the theoretical thickness for RGB
 
-plot(lambda,Gamma_B(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)
-plot(lambda,Gamma_G(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)
-plot(lambda,Gamma_R(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)
+plot(lambda,Gamma_B(:,valtoindex_L(theoric_L)),'b--','LineWidth',2)
+plot(lambda,Gamma_G(:,valtoindex_L(theoric_L)),'g--','LineWidth',2)
+plot(lambda,Gamma_R(:,valtoindex_L(theoric_L)),'r--','LineWidth',2)
 % plot(lambda,Gamma(:,valtoindex_L(theoric_L)),'c--','LineWidth',2)
 
 xlabel('lambda (\mum)')
 ylabel('Reflectance')
 xlim([0.4 0.68])
 ylim([0 1])
-legend1 = sprintf('L = %0.2f nm', 1000*esti_L);
-legend2 = sprintf('L = %0.2f nm', 1000*theoric_L);
-legend(legend1, legend2,'Ref at R','Ref at G','Ref at B','location','bestoutside')
+% legend1 = sprintf('B Curve at L = %0.2f nm', 1000*esti_L);
+% legend2 = sprintf('G Curve at L = %0.2f nm', 1000*esti_L);
+% legend3 = sprintf('R Curve at L = %0.2f nm', 1000*esti_L);
+% legend4 = sprintf('B Curve at L = %0.2f nm', 1000*theoric_L);
+% legend5 = sprintf('G Curve at L = %0.2f nm', 1000*theoric_L);
+% legend6 = sprintf('R Curve at L = %0.2f nm', 1000*theoric_L);
+
+legend1 = sprintf('B Curves', 1000*esti_L);
+legend2 = sprintf('G Curves', 1000*esti_L);
+legend3 = sprintf('R Curves', 1000*esti_L);
+
+legend('Ref at R','Ref at G','Ref at B','B Curves', 'G Curves', 'R Curves','location','bestoutside')
 title("Actual Thickness is " + theoric_L*1000 + " nm, Estimated Thickness is " + esti_L*1000 + " nm")
 
 subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'fig13'));
