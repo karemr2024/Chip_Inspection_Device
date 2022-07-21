@@ -4,11 +4,14 @@ tic
 clc; clearvars; close all;
 fprintf('Beginning to run %s.m ...\n', mfilename);
 
+load("Osram_Spec_Data.mat")
+
 %% Define variables for input in multidiels function:
 
 numval = 2740;
 L = linspace(0,0.3,numval); %SiO2 Thickness from 0 nm (Si) to 300 nm. 
 lambda = linspace(0.4,0.68,numval); %Wavelength of LED from 400 nm to 680 nm. 
+% lambda = linspace(0.3,1.1964,numval); %Wavelength of LED from 300 nm to 1196 nm. 
 
 %% Below are B and C constants for Si and SiO2 to use in Sellmeier equation. 
 %% B and C values are taken from https://refractiveindex.info/
@@ -79,13 +82,20 @@ xlim([0 0.3])
 load("spectra.mat",'spectra') %Load spectrum data
 spectra = cell2mat(spectra);
 spectra = spectra(251:1620,:);
-bluespectrum = interp(spectra(:,2)*100,2);  %Blue Spectrum from 400 to 680 nm
-greenspectrum = interp(spectra(:,4)*100,2); %Green Spectrum from 400 to 680 nm 
-redspectrum = interp(spectra(:,8)*100,2);   %Red Spectrum from 400 to 680 nm 
+bluespectrum = interp(spectra(:,2)*100,2);  %Blue Spectrum from 400 to 680 nm (NUMBER OF ELEMENTS CAN ONLY BE 2740)
+greenspectrum = interp(spectra(:,4)*100,2); %Green Spectrum from 400 to 680 nm (NUMBER OF ELEMENTS CAN ONLY BE 2740)
+redspectrum = interp(spectra(:,8)*100,2);   %Red Spectrum from 400 to 680 nm (NUMBER OF ELEMENTS CAN ONLY BE 2740)
 
 bluespectrum = bluespectrum./max(max(bluespectrum));
 greenspectrum = greenspectrum./max(max(greenspectrum));
 redspectrum = redspectrum./max(max(redspectrum)); 
+
+%% Spectrum Data for RGB using OSRAM LED Tool
+
+% bluespectrum = Spec_DentalBlue_460nm;
+% greenspectrum = Spec_Green_517nm;
+% redspectrum = Spec_Red_633nm;
+
 
 %% Plot RGB Spectrum
 
