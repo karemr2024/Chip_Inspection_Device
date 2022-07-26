@@ -1,6 +1,9 @@
 function est_L = reftocurve_lsqr(RefRed, RefGreen, RefBlue)
 
-load("Simulation_Data.mat")
+% load("Simulation_Data.mat")
+
+load("OsramSim.mat")
+numval = numel(L);
 
 %% Get reflectance points at RGB
 
@@ -12,9 +15,9 @@ RefBlue = [cw_b, RefBlue]; %Reflectance Point at Blue
 %% Creates a n-by-3 (3 = RGB) matrix with difference of measured and theoritical reflectance values. 
 
 for i = 1:length(Gamma)
-    Diff_at_B(:,i) = abs(RefBlue - Gamma_B(valtoindex_lambda(cw_b),i));
-    Diff_at_G(:,i) = abs(RefGreen - Gamma_G(valtoindex_lambda(cw_g),i));
-    Diff_at_R(:,i) = abs(RefRed - Gamma_R(valtoindex_lambda(cw_r),i));
+    Diff_at_B(:,i) = abs(RefBlue - Gamma_B(valtoindex(cw_b, numval, lambda(1), lambda(end)),i));
+    Diff_at_G(:,i) = abs(RefGreen - Gamma_G(valtoindex(cw_g, numval, lambda(1), lambda(end)),i));
+    Diff_at_R(:,i) = abs(RefRed - Gamma_R(valtoindex(cw_r, numval, lambda(1), lambda(end)),i));
 
     % Diff_at_B(:,i) = abs(RefBlue - Gamma(valtoindex_lambda(cw_b),i));
     % Diff_at_G(:,i) = abs(RefGreen - Gamma(valtoindex_lambda(cw_g),i));

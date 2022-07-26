@@ -3,26 +3,29 @@
 tic
 clc; clearvars; close all;
 fprintf('Beginning to run %s.m ...\n', mfilename);
+%%
+addpath(genpath(pwd))
 
 %% START NEW IMAGE LOAD
 
-matB = dir('B_CHIP87_5ms_40FPS_1000IMG');
-matG = dir('G_CHIP87_5ms_40FPS_1000IMG');
-matR = dir('R_CHIP87_5ms_40FPS_1000IMG');
+matB = dir('bim')
+matG = dir('gim')
+matR = dir('rim')
 
 %% ENTER EXPERIMENT DETAILS AND CREATE FOLDER
 
-Chip_no = input('Chip #: ',"s")
-Exposure = input('Exposure time (ms): ',"s")
-FPS = input('FPS: ',"s")
-ImgCount = input('# of images: ' ,"s")
-Camera = 'BFS-U3-17S7M-C' 
+% Chip_no = input('Chip #: ',"s")
+% Exposure = input('Exposure time (ms): ',"s")
+% FPS = input('FPS: ',"s")
+% ImgCount = input('# of images: ' ,"s")
+% Camera = 'BFS-U3-17S7M-C' 
+
 %%
-foldername =  append('/experiments/results/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS_',ImgCount,'_IMG',Camera)
-%%
-projectdir = 'C:\Tepegoz\iRiS_Kinetics_Github\experiments\results';
-subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera));
-mkdir(fullfile(projectdir, subfolder_name));
+
+% foldername =  append('/experiments/results/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS_',ImgCount,'_IMG',Camera)
+% projectdir = 'C:\Tepegoz\iRiS_Kinetics_Github\experiments\results';
+% subfolder_name=char(append('/CHIP',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera,'/CHIP_',Chip_no,'_',Exposure,'ms_',FPS,'FPS',ImgCount,'_IMG',Camera));
+% mkdir(fullfile(projectdir, subfolder_name));
 
 %%
 matB = (matB(3:end));
@@ -52,7 +55,7 @@ end
 %% END NEW IMAGE LOAD
 
 %% Below are prompts for user to input unknown SiO2 nm images in .mat format
-
+% 
 % [R_Tiff_Name,R_Tiff_Path] = uigetfile('*.mat','Red Stack'); %Import Unknown Thickness: Red Image
 % if isequal(R_Tiff_Name,0)
 %    disp('User selected Cancel');
@@ -80,12 +83,12 @@ end
 %% Prompt user about the thickness of the chip
 
 load("Simulation_Data.mat")
-prompt_NorS = input('Do you know the thickness of your chip? (Y/N)\n', "s");
-if prompt_NorS == 'Y'
-theoric_L = (input('Enter the thickness of your chip in nm: \n'))/1000;
-else
-theoric_L = 'UNKNOWN';
-end
+% prompt_NorS = input('Do you know the thickness of your chip? (Y/N)\n', "s");
+% if prompt_NorS == 'Y'
+% theoric_L = (input('Enter the thickness of your chip in nm: \n'))/1000;
+% else
+% theoric_L = 'UNKNOWN';
+% end
 
 %% Convert RGB stacks from struct to cell
 
@@ -142,10 +145,11 @@ for i = 2:nfiles
     G_Crop_Bothnm(:,:,i) = AreaSelection_Circle_Mod(tiff_stack_G(:,:,i),x_crop_Bothnm,y_crop_Bothnm);
     B_Crop_Bothnm(:,:,i) = AreaSelection_Circle_Mod(tiff_stack_B(:,:,i),x_crop_Bothnm,y_crop_Bothnm);
 end
+%%
 
 %% Display ROI selected spot image and select ROI for outer Silicon ring
 
-[cropped_im_R_0nm_out(:,:,1),x_crop_0nm_out,y_crop_0nm_out] = AreaSelection_Circle_SiOut(R_Crop_Bothnm(:,:,1));
+[cropped_im_R_0nm_out(:,:,1),x_crop_0nm_out,y_crop_0nm_out,Center] = AreaSelection_Circle_SiOut(R_Crop_Bothnm(:,:,1));
 cropped_im_G_0nm_out(:,:,1) = AreaSelection_Circle_Mod(G_Crop_Bothnm(:,:,1),x_crop_0nm_out,y_crop_0nm_out);
 cropped_im_B_0nm_out(:,:,1) = AreaSelection_Circle_Mod(B_Crop_Bothnm(:,:,1),x_crop_0nm_out,y_crop_0nm_out);
 
@@ -156,15 +160,15 @@ for i = 2:nfiles
 end
 
 %% Display ROI selected outer ring image and select ROI for inner Silicon ring
-
-[cropped_im_R_0nm_in(:,:,1),x_crop_0nm_in,y_crop_0nm_in] = AreaSelection_Circle_SiIn(cropped_im_R_0nm_out(:,:,1),x_crop_0nm_out,y_crop_0nm_out);
-cropped_im_G_0nm_in(:,:,1) = AreaSelection_Circle_Mod_SiIn(cropped_im_G_0nm_out(:,:,1),x_crop_0nm_in,y_crop_0nm_in);
-cropped_im_B_0nm_in(:,:,1) = AreaSelection_Circle_Mod_SiIn(cropped_im_B_0nm_out(:,:,1),x_crop_0nm_in,y_crop_0nm_in);
+set(gcf, 'units','normalized','outerposition',[0 0 1 1]);
+[cropped_im_R_0nm_in(:,:,1),x_crop_0nm_in,y_crop_0nm_in] = AreaSelection_Circle_SiIn(R_Crop_Bothnm(:,:,1),x_crop_0nm_out,y_crop_0nm_out,Center);
+cropped_im_G_0nm_in(:,:,1) = AreaSelection_Circle_Mod_SiIn(G_Crop_Bothnm(:,:,1),x_crop_0nm_in,y_crop_0nm_in);
+cropped_im_B_0nm_in(:,:,1) = AreaSelection_Circle_Mod_SiIn(B_Crop_Bothnm(:,:,1),x_crop_0nm_in,y_crop_0nm_in);
 
 for i = 2:nfiles
-    cropped_im_R_0nm_in(:,:,i) = AreaSelection_Circle_Mod_SiIn(cropped_im_R_0nm_out(:,:,i),x_crop_0nm_in,y_crop_0nm_in);
-    cropped_im_G_0nm_in(:,:,i) = AreaSelection_Circle_Mod_SiIn(cropped_im_G_0nm_out(:,:,i),x_crop_0nm_in,y_crop_0nm_in);
-    cropped_im_B_0nm_in(:,:,i) = AreaSelection_Circle_Mod_SiIn(cropped_im_B_0nm_out(:,:,i),x_crop_0nm_in,y_crop_0nm_in);
+    cropped_im_R_0nm_in(:,:,i) = AreaSelection_Circle_Mod_SiIn(R_Crop_Bothnm(:,:,i),x_crop_0nm_in,y_crop_0nm_in);
+    cropped_im_G_0nm_in(:,:,i) = AreaSelection_Circle_Mod_SiIn(G_Crop_Bothnm(:,:,i),x_crop_0nm_in,y_crop_0nm_in);
+    cropped_im_B_0nm_in(:,:,i) = AreaSelection_Circle_Mod_SiIn(B_Crop_Bothnm(:,:,i),x_crop_0nm_in,y_crop_0nm_in);
 end
 
 %% Display ROI selected inner ring image and select ROI for Silicon Oxide

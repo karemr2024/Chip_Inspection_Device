@@ -3,10 +3,25 @@
 tic
 clc; clearvars; close all;
 fprintf('Beginning to run %s.m ...\n', mfilename);
+addpath(genpath(pwd))
+
+load("OsramSpecData.mat")
+
+%% Take lambda and specs from 400 to 680 nm
+
+Osram_lambda = Osram_lambda(301:1141)
+Ref_Spec_DentalBlue_460nm = Ref_Spec_DentalBlue_460nm(301:1141)
+Ref_Spec_Green_517nm = Ref_Spec_Green_517nm(301:1141)
+Ref_Spec_Red_633nm = Ref_Spec_Red_633nm(301:1141)
+
+Osram_lambda = interp(Osram_lambda,3)
+Ref_Spec_DentalBlue_460nm = interp(Ref_Spec_DentalBlue_460nm,3)
+Ref_Spec_Green_517nm = interp(Ref_Spec_Green_517nm,3)
+Ref_Spec_Red_633nm = interp(Ref_Spec_Red_633nm,3)
 
 %% Define variables for input in multidiels function:
 
-numval = 2740;
+numval = numel(Ref_Spec_Red_633nm);
 L = linspace(0,0.3,numval); %SiO2 Thickness from 0 nm (Si) to 300 nm. 
 lambda = linspace(0.4,0.68,numval); %Wavelength of LED from 400 nm to 680 nm. 
 
@@ -76,13 +91,10 @@ xlim([0 0.3])
 
 %% Spectrum Data for red, green and blue LEDs are shown in Figure 5.
 
-load("spectra.mat",'spectra') %Load spectrum data
-spectra = cell2mat(spectra);
-spectra = spectra(251:1620,:);
-bluespectrum = interp(spectra(:,2)*100,2);  %Blue Spectrum from 400 to 680 nm
-greenspectrum = interp(spectra(:,4)*100,2); %Green Spectrum from 400 to 680 nm 
-redspectrum = interp(spectra(:,8)*100,2);   %Red Spectrum from 400 to 680 nm 
-
+bluespectrum = Ref_Spec_DentalBlue_460nm;
+greenspectrum = Ref_Spec_Green_517nm;
+redspectrum = Ref_Spec_Red_633nm;
+%%
 bluespectrum = bluespectrum./max(max(bluespectrum));
 greenspectrum = greenspectrum./max(max(greenspectrum));
 redspectrum = redspectrum./max(max(redspectrum)); 
@@ -237,7 +249,7 @@ Ref_at_120nm_B = Gamma(valtoindex(cw_b, numval, lambda(1), lambda(end)),valtoind
 
 %% Save variables needed in other scripts
 
-save Simulation_Data.mat
+save OsramSim.mat
 
 %% PROOF AND COMPARISON OF GAMMA MATRIX WITH SOURCE
 %% 
