@@ -1,12 +1,57 @@
 tic
-   % The program section to time. 
 
 clc; clearvars; close all;
+addpath(genpath(pwd))
 
-load("Osram_Data.mat")
-Gamma = Gamma(1:2691,1:2691);
-L = L(1:2691);
-lambda = lambda(1:2691);
+% Define variables for input in multidiels function: 
+
+numval = 2706;
+
+L = linspace(0,0.3,numval); %SiO2 Thickness from 0 nm (Si) to 140 nm. 
+lambda = linspace(0.4,0.68,numval); %Wavelength of LED from 400 nm to 680 nm. 
+% Functions valtoindex_L & valtoindex_lambda are used to convert L or
+% lambda value to MATLAB index
+
+theta = 0; %incidence angle from left medium (in degrees)
+
+%Below are B and C constants for Si and SiO2 to use in Sellmeier equation.
+%B and C values taken from https://refractiveindex.info/
+
+B_Si = [10.6684293 0.0030434748 1.54133408]; %B Constants for Si [B1, B2, B3]
+B_SiO = [0.6961663 0.4079426 0.8974794]; %B Constants for SiO2 [B1, B2, B3]
+
+C_Si = [0.301516485 1.13475115 1104]; %C Constants for Si [C1, C2, C3]
+C_SiO = [0.0684043 0.1162414 9.896161]; %C Constants for SiO2 [C1, C2, C3]
+
+
+
+nsqrSi =sellmeier(B_Si,C_Si,lambda); %Find refractive index values for Si at each wavelength
+nsqrSiO =sellmeier(B_SiO,C_SiO,lambda); %Find refractive index values for SiO2 at each wavelength
+
+nrSi = (sqrt(nsqrSi)+conj(sqrt(nsqrSi)))/2; %Si refractive index to input in multidiels
+nrSiO = (sqrt(nsqrSiO)+conj(sqrt(nsqrSiO)))/2; %SiO2 refractive index to input in multidiels
+
+% Calculate and display Gamma matrix from inputs above. Gamma(lambda,L) is a matrix for Si/SiO2
+% reflectivity. The variables are light wavelength (lambda) and SiO2 thickness (L). 
+% Usage: [Gamma,Z] = multidiels(n,L,lambda,theta,pol) Theta and pol are 0, so they are not included
+
+Z1 = [];
+Gamma1 = [];
+
+for i = 1:numel(lambda)
+for j = 1:numel(L)
+[Gamma1(i,j),Z1(i,j)] = multidiels([1;nrSiO(1,i);nrSi(1,i)],L(j).*nrSiO(1,i),lambda(1,i));
+end
+end
+
+[MLam, MThicc] = meshgrid(lambda,L);
+Gamma = conj(Gamma1).*Gamma1; %Multiply Gamma with conjugate to get rid of imaginary component
+
+%%
+% load("Simulation_Data.mat")
+% Gamma = Gamma(1:2691,1:2691);
+% L = L(1:2691);
+% lambda = lambda(1:2691);
 Osram_Led_Spec_NoInt = table2array(readtable("LED_Engin_Spectrum_Data.csv"));
 
 for i=1:23
@@ -14,7 +59,9 @@ Osram_Led_Spec(:,i) = interp(Osram_Led_Spec_NoInt(:,i),3);
 end
 
 Osram_lambda = Osram_Led_Spec(:,1); %Wavelength from 350nm to 1100 nm
-
+%%
+Osram_lambda(isnan(Osram_lambda)) = 0
+%%
 %Spectrum Datas (Normalized to 1)
 
 Spec_Warm_White_2200K = Osram_Led_Spec(:,2)/(max(max(Osram_Led_Spec(:,2))));
@@ -83,7 +130,7 @@ legend('Warm White 2200K','Warm White 3000K','Neutral White 4000K','Cool White 5
 
 %Reflectivity spectrum for colored LEDs at 0 nm
 
-for i = 1:2691
+for i = 1:numval
 Ref_Spec_WW_2200K = Gamma(i,valtoindex_L(0))'.*Spec_Warm_White_2200K; %Reflectivity spectrum for red at 0 nm (R_r) 
 Ref_Spec_WW_3000K = Gamma(i,valtoindex_L(0))'.*Spec_Warm_White_3000K; 
 Ref_Spec_NW_4000K = Gamma(i,valtoindex_L(0))'.*Spec_Neutral_White_4000K;  
@@ -107,29 +154,30 @@ Ref_Spec_FarRed_740nm = Gamma(i,valtoindex_L(0))'.*Spec_FarRed_740nm;
 Ref_Spec_InfraRed_850nm = Gamma(i,valtoindex_L(0))'.*Spec_InfraRed_850nm; 
 Ref_Spec_DeepInfraRed_940nm = Gamma(i,valtoindex_L(0))'.*Spec_DeepInfraRed_940nm; 
 end 
+%%
+Ref_Spec_WW_2200K(isnan(Ref_Spec_WW_2200K)) = 0;
+Ref_Spec_WW_3000K(isnan(Ref_Spec_WW_3000K)) = 0;
+Ref_Spec_NW_4000K(isnan(Ref_Spec_NW_4000K)) = 0;
+Ref_Spec_CW_5500K(isnan(Ref_Spec_CW_5500K)) = 0;
+Ref_Spec_CW_6500K(isnan(Ref_Spec_CW_6500K)) = 0;
+Ref_Spec_UVA_365nm(isnan(Ref_Spec_UVA_365nm)) = 0;
+Ref_Spec_Violet_385nm(isnan(Ref_Spec_Violet_385nm)) = 0;
+Ref_Spec_Violet_395nm(isnan(Ref_Spec_Violet_395nm)) = 0;
+Ref_Spec_Violet_405nm(isnan(Ref_Spec_Violet_405nm)) = 0;
+Ref_Spec_DeepBlue_436nm(isnan(Ref_Spec_DeepBlue_436nm)) = 0;
+Ref_Spec_RoyalBlue_453nm(isnan(Ref_Spec_RoyalBlue_453nm)) = 0;
+Ref_Spec_DentalBlue_460nm(isnan(Ref_Spec_DentalBlue_460nm)) = 0;
+Ref_Spec_Cyan_500nm(isnan(Ref_Spec_Cyan_500nm)) = 0;
+Ref_Spec_PCLime(isnan(Ref_Spec_PCLime)) = 0;
+Ref_Spec_Green_517nm(isnan(Ref_Spec_Green_517nm)) = 0;
+Ref_Spec_Amber_593nm(isnan(Ref_Spec_Amber_593nm)) = 0;
+Ref_Spec_PCAmber(isnan(Ref_Spec_PCAmber)) = 0;
+Ref_Spec_Red_633nm(isnan(Ref_Spec_Red_633nm)) = 0;
+Ref_Spec_DeepRed_660nm(isnan(Ref_Spec_DeepRed_660nm)) = 0;
+Ref_Spec_FarRed_740nm(isnan(Ref_Spec_FarRed_740nm)) = 0;
+Ref_Spec_InfraRed_850nm(isnan(Ref_Spec_InfraRed_850nm)) = 0;
+Ref_Spec_DeepInfraRed_940nm(isnan(Ref_Spec_DeepInfraRed_940nm)) = 0;
 
-Ref_Spec_WW_2200K = Ref_Spec_WW_2200K(1:2691);
-Ref_Spec_WW_3000K = Ref_Spec_WW_3000K(1:2691);
-Ref_Spec_NW_4000K = Ref_Spec_NW_4000K(1:2691);
-Ref_Spec_CW_5500K = Ref_Spec_CW_5500K(1:2691);
-Ref_Spec_CW_6500K = Ref_Spec_CW_6500K(1:2691);
-Ref_Spec_UVA_365nm = Ref_Spec_UVA_365nm(1:2691);
-Ref_Spec_Violet_385nm = Ref_Spec_Violet_385nm(1:2691);
-Ref_Spec_Violet_395nm = Ref_Spec_Violet_395nm(1:2691);
-Ref_Spec_Violet_405nm = Ref_Spec_Violet_405nm(1:2691);
-Ref_Spec_DeepBlue_436nm = Ref_Spec_DeepBlue_436nm(1:2691);
-Ref_Spec_RoyalBlue_453nm = Ref_Spec_RoyalBlue_453nm(1:2691);
-Ref_Spec_DentalBlue_460nm = Ref_Spec_DentalBlue_460nm(1:2691);
-Ref_Spec_Cyan_500nm = Ref_Spec_Cyan_500nm(1:2691);
-Ref_Spec_PCLime = Ref_Spec_PCLime(1:2691);
-Ref_Spec_Green_517nm = Ref_Spec_Green_517nm(1:2691);
-Ref_Spec_Amber_593nm = Ref_Spec_Amber_593nm(1:2691);
-Ref_Spec_PCAmber = Ref_Spec_PCAmber(1:2691);
-Ref_Spec_Red_633nm = Ref_Spec_Red_633nm(1:2691);
-Ref_Spec_DeepRed_660nm = Ref_Spec_DeepRed_660nm(1:2691);
-Ref_Spec_FarRed_740nm = Ref_Spec_FarRed_740nm(1:2691);
-Ref_Spec_InfraRed_850nm = Ref_Spec_InfraRed_850nm(1:2691);
-Ref_Spec_DeepInfraRed_940nm = Ref_Spec_DeepInfraRed_940nm(1:2691);
 
 %%
 
@@ -160,7 +208,7 @@ I_ref_DeepInfraRed_940nm = [];
 
  %Multiply reflectance with I_Out for every thickness and sum to find total reflected intensity
 
-for i=1:2691
+for i=1:numval
     
     I_ref_WW_2200K(:,i) = sum(Gamma(:,i).*Ref_Spec_WW_2200K)./100;         
     I_ref_WW_3000K(:,i) = sum(Gamma(:,i).*Ref_Spec_WW_3000K)./100;     
@@ -211,20 +259,20 @@ plot(L,I_ref_InfraRed_850nm,'LineWidth',2,'Color','#5B1B1B')
 plot(L,I_ref_DeepInfraRed_940nm,'LineWidth',2,'Color','#5B1B1B')
 title('Reflected Intensity (I_O_u_t) for Colored LEDs from 0 nm to 300 nm')
 xlabel('L (\mum)','FontSize',16);
-ylim([0 0.16])
+% ylim([0 0.16])
 ylabel('Reflected Intensity (I_O_u_t)','FontSize',16);
 legend('Violet (385 nm)','Violet (395 nm)','Violet (405 nm)','Deep Blue (436 nm)', ...
     'Royal Blue (453 nm)','Dental Blue (460 nm)','Cyan (500 nm)','Green (517 nm)','Amber (593 nm)', ...
     'Red (633 nm)','Deep Red (660 nm)','Far Red (740 nm)','Infrared (850 nm)')
 hold off
-
+%%
 figure(4)
 hold on
-plot(L,I_ref_WW_2200K,'LineWidth',2, 'Color' , '#FFC372')
-plot(L,I_ref_WW_3000K,'LineWidth',2, 'Color' , '#FFD7A2')
+% plot(L,I_ref_WW_2200K,'LineWidth',2, 'Color' , '#FFC372')
+% plot(L,I_ref_WW_3000K,'LineWidth',2, 'Color' , '#FFD7A2')
 plot(L,I_ref_NW_4000K,'LineWidth',2, 'Color' , '#ECEAE7')   
-plot(L,I_ref_CW_5500K,'LineWidth',2, 'Color', '#D6E8E8')
-plot(L,I_ref_CW_6500K,'LineWidth',2, 'Color', '#DEF8F8')
+% plot(L,I_ref_CW_5500K,'LineWidth',2, 'Color', '#D6E8E8')
+% plot(L,I_ref_CW_6500K,'LineWidth',2, 'Color', '#DEF8F8')
 title('Reflected Intensity (I_O_u_t) for White LEDs from 0 nm to 300 nm')
 ylim([0 0.6])
 xlabel('L (\mum)','FontSize',16);
@@ -232,7 +280,7 @@ ylabel('Reflected Intensity (I_O_u_t)','FontSize',16);
 legend('Warm White 2200K','Warm White 3000K','Neutral White 4000K','Cool White 5500K','Cool White 6500K')
 hold off
 
-
+%%
 % figure(5)
 % hold on
 % plot(L,I_ref_Red_633nm,'r','LineWidth',2)
@@ -259,9 +307,46 @@ plot(L,I_ref_DeepInfraRed_940nm,'LineWidth',2,'Color','#5B1B1B')
 xline(0.12)
 title('dental blue, Far Red, and Infra Red (Good at 120 nm)')
 legend('Dental Blue (460 nm)','Far Red (740 nm)','Infra Red (850 nm)','location','northeast')
+%%
+% for i = 1:2691
+% Ref_spec_blue_113 = Gamma(i,valtoindex_L(0.113))'.*Spec_DentalBlue_460nm; %Reflectivity spectrum for blue at 113 nm (R_b)
+% Ref_spec_FarRed_113 = Gamma(i,valtoindex_L(0.113))'.*Spec_FarRed_740nm; %Reflectivity spectrum for white at 113 nm (R_w)
+% Ref_spec_InfraRed_113 = Gamma(i,valtoindex_L(0.113))'.*Spec_InfraRed_850nm;
+% end 
+% 
+% for i = 1:2691
+% Ref_spec_blue_114 = Gamma(i,valtoindex_L(0.114))'.*Spec_DentalBlue_460nm; %Reflectivity spectrum for blue at 113 nm (R_b)
+% Ref_spec_FarRed_114 = Gamma(i,valtoindex_L(0.114))'.*Spec_FarRed_740nm; %Reflectivity spectrum for white at 113 nm (R_w)
+% Ref_spec_InfraRed_114 = Gamma(i,valtoindex_L(0.114))'.*Spec_InfraRed_850nm; 
+% end 
+% 
+% Ref_spec_blue_113 = Ref_spec_blue_113(1:2691)
+% Ref_spec_FarRed_113 = Ref_spec_FarRed_113(1:2691)
+% Ref_spec_InfraRed_113 = Ref_spec_InfraRed_113(1:2691)
+% 
+% Ref_spec_blue_114 = Ref_spec_blue_114 (1:2691)
+% Ref_spec_FarRed_114 = Ref_spec_FarRed_114(1:2691)
+% Ref_spec_InfraRed_114 = Ref_spec_InfraRed_114(1:2691)
 
-load("Bulk_Effect_Data.mat")
+%%
+% figure(50)
+% hold on
+% plot(lambda,Ref_spec_blue_113,'Color','#001787','LineWidth',2)
+% plot(lambda,Ref_spec_FarRed_113,'Color','#FF2B2B','LineWidth',2)
+% plot(lambda,Ref_spec_InfraRed_113,'Color','#5B1B1B','LineWidth',2)
+% 
+% plot(lambda,Ref_spec_blue_114,'Color','#657FFF','LineWidth',2)
+% plot(lambda,Ref_spec_FarRed_114,'Color','#A60000','LineWidth',2)
+% plot(lambda,Ref_spec_InfraRed_114, 'Color' , '#FFC372','LineWidth',2)
+% 
+% legend('113 nm','113 nm','113 nm','114 nm','114 nm','114 nm')
+%%
+save("OsramSpecData.mat","Osram_lambda", "Ref_Spec_Red_633nm","Ref_Spec_Green_517nm","Ref_Spec_DentalBlue_460nm")
 
+
+
+% load("Bulk_Effect_Data.mat")
+% Look at Bulk_Effect_Calculations
 toc
 
 
